@@ -1,217 +1,276 @@
 """
-SMOKE ROOM — Telegram Bot (aiogram 2.x — без pydantic)
+SMOKE ROOM BOT — тільки requests, без aiogram
+Працює на будь-якому Python 3.7+
 """
-import asyncio, json, logging, os
+import json, logging, os, time
 from pathlib import Path
-from aiogram import Bot, Dispatcher, executor, types
-from aiogram.contrib.fsm_storage.memory import MemoryStorage
-from aiogram.dispatcher import FSMContext
-from aiogram.dispatcher.filters.state import State, StatesGroup
+import requests
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 log = logging.getLogger(__name__)
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "8707908880:AAEOZnNOBK4IG30KyQ6518NQQlhVF14BnB4")
-ADMIN_ID  = int(os.getenv("ADMIN_ID", "1438736640"))
-DB_FILE   = Path("products.json")
+TOKEN    = os.getenv("BOT_TOKEN", "8707908880:AAEOZnNOBK4IG30KyQ6518NQQlhVF14BnB4")
+ADMIN_ID = int(os.getenv("ADMIN_ID", "1438736640"))
+API      = f"https://api.telegram.org/bot{TOKEN}"
+DB_FILE  = Path("products.json")
 
 DEFAULT = [
     {"id":1,"cat":"liquid","name":"Рідина 1","price":250,"desc":"Опис","variants":["30мл·50мг","30мл·60мг"]},
     {"id":2,"cat":"liquid","name":"Рідина 2","price":250,"desc":"Опис","variants":["30мл·50мг","30мл·60мг"]},
     {"id":3,"cat":"liquid","name":"Рідина 3","price":250,"desc":"Опис","variants":["30мл·50мг","30мл·60мг"]},
-    {"id":6,"cat":"pod","name":"Pod-система 1","price":150,"desc":"Опис","variants":["Black","Blue"]},
+    {"id":4,"cat":"liquid","name":"Рідина 4","price":250,"desc":"Опис","variants":["30мл·50мг","30мл·60мг"]},
+    {"id":5,"cat":"liquid","name":"Рідина 5","price":250,"desc":"Опис","variants":["30мл·50мг","30мл·60мг"]},
+    {"id":6,"cat":"pod","name":"Pod-система 1","price":150,"desc":"Опис","variants":["Black","Blue","Red"]},
     {"id":7,"cat":"pod","name":"Картридж 1","price":150,"desc":"Опис","variants":["0.6Ω Mesh"]},
     {"id":9,"cat":"snus","name":"Снюс 1","price":180,"desc":"Опис","variants":["Slim","Mini"]},
     {"id":10,"cat":"snus","name":"Снюс 2","price":160,"desc":"Опис","variants":["Normal","Strong"]},
 ]
 
+# ── DB ────────────────────────────────────────────────────────
 def load():
     if not DB_FILE.exists(): save(DEFAULT)
-    with open(DB_FILE, encoding="utf-8") as f: return json.load(f)
+    return json.loads(DB_FILE.read_text(encoding="utf-8"))
 
 def save(data):
-    with open(DB_FILE, "w", encoding="utf-8") as f: json.dump(data, f, ensure_ascii=False, indent=2)
+    DB_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
 
-def find(pid): return next((p for p in load() if p["id"]==pid), None)
-def nid(): items=load(); return max((p["id"] for p in items),default=0)+1
-def is_admin(uid): return uid==ADMIN_ID
+def find(pid):
+    return next((p for p in load() if p["id"]==pid), None)
+
+def nid():
+    items = load()
+    return max((p["id"] for p in items), default=0) + 1
 
 def card(p):
-    cats={"liquid":"💧 Рідина","pod":"⚡ Система","snus":"🌿 Снюс"}
+    cats = {"liquid":"💧 Рідина","pod":"⚡ Система","snus":"🌿 Снюс"}
     return (f"<b>{p['name']}</b> [ID:{p['id']}]\n"
             f"Категорія: {cats.get(p['cat'],'—')}\n"
             f"Ціна: <b>{p['price']}₴</b>\n"
             f"Опис: {p['desc']}\n"
             f"Варіанти: <code>{' | '.join(p.get('variants',[]))}</code>")
 
-class Edit(StatesGroup):
-    field=State(); value=State()
-class Add(StatesGroup):
-    name=State(); cat=State(); price=State(); desc=State(); variants=State()
+# ── TELEGRAM API ──────────────────────────────────────────────
+def send(chat_id, text, reply_markup=None, parse_mode="HTML"):
+    payload = {"chat_id": chat_id, "text": text, "parse_mode": parse_mode}
+    if reply_markup:
+        payload["reply_markup"] = json.dumps(reply_markup)
+    try:
+        requests.post(f"{API}/sendMessage", json=payload, timeout=10)
+    except Exception as e:
+        log.error("send error: %s", e)
 
-bot=Bot(token=BOT_TOKEN,parse_mode="HTML")
-dp=Dispatcher(bot,storage=MemoryStorage())
+def edit(chat_id, msg_id, text, reply_markup=None):
+    payload = {"chat_id": chat_id, "message_id": msg_id, "text": text, "parse_mode": "HTML"}
+    if reply_markup:
+        payload["reply_markup"] = json.dumps(reply_markup)
+    try:
+        requests.post(f"{API}/editMessageText", json=payload, timeout=10)
+    except Exception as e:
+        log.error("edit error: %s", e)
 
+def answer_cb(cb_id, text=""):
+    try:
+        requests.post(f"{API}/answerCallbackQuery", json={"callback_query_id": cb_id, "text": text}, timeout=10)
+    except: pass
+
+def delete_msg(chat_id, msg_id):
+    try:
+        requests.post(f"{API}/deleteMessage", json={"chat_id": chat_id, "message_id": msg_id}, timeout=10)
+    except: pass
+
+# ── KEYBOARDS ─────────────────────────────────────────────────
 def admin_kb():
-    kb=types.ReplyKeyboardMarkup(resize_keyboard=True)
-    kb.add("📋 Товари"); kb.add("➕ Додати","🗑 Видалити"); kb.add("📊 Статистика","❌ Закрити"); return kb
+    return {"keyboard": [["📋 Товари"],["➕ Додати","🗑 Видалити"],["📊 Статистика","❌ Закрити"]], "resize_keyboard": True}
 
 def cat_kb():
-    kb=types.ReplyKeyboardMarkup(resize_keyboard=True); kb.add("💧 Рідини","⚡ Системи","🌿 Снюс"); return kb
+    return {"keyboard": [["💧 Рідини","⚡ Системи","🌿 Снюс"]], "resize_keyboard": True}
+
+def remove_kb():
+    return {"remove_keyboard": True}
 
 def products_ik(items):
-    kb=types.InlineKeyboardMarkup(); icons={"liquid":"💧","pod":"⚡","snus":"🌿"}
-    for p in items: kb.add(types.InlineKeyboardButton(f"{icons.get(p['cat'],'📦')} {p['name']} — {p['price']}₴",callback_data=f"ep:{p['id']}"))
-    return kb
+    icons = {"liquid":"💧","pod":"⚡","snus":"🌿"}
+    return {"inline_keyboard": [[{"text": f"{icons.get(p['cat'],'📦')} {p['name']} — {p['price']}₴", "callback_data": f"ep:{p['id']}"}] for p in items]}
 
 def edit_field_ik(pid):
-    kb=types.InlineKeyboardMarkup(row_width=2)
-    kb.add(types.InlineKeyboardButton("🔤 Назва",callback_data=f"ef:{pid}:name"),
-           types.InlineKeyboardButton("💰 Ціна",callback_data=f"ef:{pid}:price"),
-           types.InlineKeyboardButton("📝 Опис",callback_data=f"ef:{pid}:desc"),
-           types.InlineKeyboardButton("🎨 Варіанти",callback_data=f"ef:{pid}:variants"))
-    kb.add(types.InlineKeyboardButton("◀️ Назад",callback_data="back")); return kb
+    return {"inline_keyboard": [
+        [{"text":"🔤 Назва","callback_data":f"ef:{pid}:name"},{"text":"💰 Ціна","callback_data":f"ef:{pid}:price"}],
+        [{"text":"📝 Опис","callback_data":f"ef:{pid}:desc"},{"text":"🎨 Варіанти","callback_data":f"ef:{pid}:variants"}],
+        [{"text":"◀️ Назад","callback_data":"back"}],
+    ]}
 
 def delete_ik(items):
-    kb=types.InlineKeyboardMarkup()
-    for p in items: kb.add(types.InlineKeyboardButton(f"❌ {p['name']}",callback_data=f"del:{p['id']}"))
-    kb.add(types.InlineKeyboardButton("◀️ Скасувати",callback_data="cancel")); return kb
+    rows = [[{"text":f"❌ {p['name']}","callback_data":f"del:{p['id']}"}] for p in items]
+    rows.append([{"text":"◀️ Скасувати","callback_data":"cancel"}])
+    return {"inline_keyboard": rows}
 
 def confirm_ik(pid):
-    kb=types.InlineKeyboardMarkup(row_width=2)
-    kb.add(types.InlineKeyboardButton("✅ Так",callback_data=f"delyes:{pid}"),
-           types.InlineKeyboardButton("❌ Ні",callback_data="cancel")); return kb
+    return {"inline_keyboard": [[{"text":"✅ Так","callback_data":f"delyes:{pid}"},{"text":"❌ Ні","callback_data":"cancel"}]]}
 
-@dp.message_handler(commands="start")
-async def cmd_start(msg:types.Message):
-    await msg.answer("👋 <b>Smoke Room Bot</b>\nЗамовлення приходять сюди.\nАдмін: /admin")
+# ── STATE MACHINE ─────────────────────────────────────────────
+# state[chat_id] = {"step": ..., "data": {...}}
+state = {}
 
-@dp.message_handler(commands="admin",state="*")
-async def cmd_admin(msg:types.Message,state:FSMContext):
-    if not is_admin(msg.from_user.id): await msg.answer("⛔️"); return
-    await state.finish()
-    await msg.answer(f"🔧 <b>Адмін-панель</b>\nТоварів: <b>{len(load())}</b>",reply_markup=admin_kb())
+def get_state(cid): return state.get(cid, {})
+def set_state(cid, step, data=None): state[cid] = {"step": step, "data": data or {}}
+def clear_state(cid): state.pop(cid, None)
 
-@dp.message_handler(lambda m:m.text=="❌ Закрити",state="*")
-async def close(msg:types.Message,state:FSMContext):
-    if not is_admin(msg.from_user.id): return
-    await state.finish(); await msg.answer("Закрито.",reply_markup=types.ReplyKeyboardRemove())
+# ── HANDLERS ─────────────────────────────────────────────────
+def handle_message(msg):
+    cid  = msg["chat"]["id"]
+    uid  = msg["from"]["id"]
+    text = msg.get("text", "")
+    st   = get_state(cid)
+    step = st.get("step")
+    data = st.get("data", {})
 
-@dp.message_handler(lambda m:m.text=="📋 Товари")
-async def show(msg:types.Message):
-    if not is_admin(msg.from_user.id): return
-    items=load()
-    if not items: await msg.answer("Порожньо."); return
-    cats={"liquid":[],"pod":[],"snus":[]}
-    for p in items: cats.get(p["cat"],[]).append(p)
-    text="📋 <b>Всі товари:</b>\n\n"
-    for cat,icon,label in [("liquid","💧","Рідини"),("pod","⚡","Системи"),("snus","🌿","Снюс")]:
-        if cats[cat]:
-            text+=f"{icon} <b>{label}</b>\n"
-            for p in cats[cat]: text+=f"  • {p['name']} — {p['price']}₴\n"
-            text+="\n"
-    await msg.answer(text,reply_markup=products_ik(items))
+    # ── FSM: Edit value ──
+    if step == "edit_value":
+        field = data["field"]; pid = data["pid"]
+        val = text.strip()
+        items = load()
+        p = next((x for x in items if x["id"]==pid), None)
+        if not p: send(cid, "❌ Не знайдено"); clear_state(cid); return
+        if field == "price":
+            if not val.isdigit(): send(cid, "⚠️ Тільки число!"); return
+            p[field] = int(val)
+        elif field == "variants":
+            p[field] = [v.strip() for v in val.split(",")]
+        else:
+            p[field] = val
+        save(items); clear_state(cid)
+        send(cid, f"✅ Оновлено!\n\n{card(p)}", admin_kb())
+        return
 
-@dp.callback_query_handler(lambda c:c.data.startswith("ep:"),state="*")
-async def cb_ep(cb:types.CallbackQuery,state:FSMContext):
-    if not is_admin(cb.from_user.id): await cb.answer("⛔️",show_alert=True); return
-    pid=int(cb.data.split(":")[1]); p=find(pid)
-    if not p: await cb.answer("Не знайдено"); return
-    await state.update_data(pid=pid); await Edit.field.set()
-    await cb.message.edit_text(f"✏️ Редагуємо:\n\n{card(p)}\n\n<b>Що змінюємо?</b>",reply_markup=edit_field_ik(pid))
-    await cb.answer()
+    # ── FSM: Add product ──
+    if step == "add_name":
+        set_state(cid, "add_cat", {"name": text.strip()})
+        send(cid, "Категорія:", cat_kb()); return
 
-@dp.callback_query_handler(lambda c:c.data=="back",state="*")
-async def cb_back(cb:types.CallbackQuery,state:FSMContext):
-    await state.finish(); await cb.message.edit_text("📋 Обери товар:",reply_markup=products_ik(load())); await cb.answer()
+    if step == "add_cat":
+        m = {"💧 Рідини":"liquid","⚡ Системи":"pod","🌿 Снюс":"snus"}
+        cat = m.get(text)
+        if not cat: send(cid, "Обери з клавіатури 👇"); return
+        data["cat"] = cat; set_state(cid, "add_price", data)
+        send(cid, "Ціна (число):", remove_kb()); return
 
-@dp.callback_query_handler(lambda c:c.data.startswith("ef:"),state=Edit.field)
-async def cb_ef(cb:types.CallbackQuery,state:FSMContext):
-    if not is_admin(cb.from_user.id): await cb.answer("⛔️",show_alert=True); return
-    _,pid,field=cb.data.split(":")
-    labels={"name":"назву","price":"ціну (число)","desc":"опис","variants":"варіанти через кому"}
-    await state.update_data(pid=int(pid),field=field); await Edit.value.set()
-    await cb.message.answer(f"✏️ Введи нове значення для <b>{labels.get(field,field)}</b>:"); await cb.answer()
+    if step == "add_price":
+        if not text.strip().isdigit(): send(cid, "⚠️ Тільки число!"); return
+        data["price"] = int(text.strip()); set_state(cid, "add_desc", data)
+        send(cid, "Опис товару:"); return
 
-@dp.message_handler(state=Edit.value)
-async def save_edit(msg:types.Message,state:FSMContext):
-    if not is_admin(msg.from_user.id): return
-    data=await state.get_data(); pid=data["pid"]; field=data["field"]; val=msg.text.strip()
-    items=load(); p=next((x for x in items if x["id"]==pid),None)
-    if not p: await msg.answer("❌"); await state.finish(); return
-    if field=="price":
-        if not val.isdigit(): await msg.answer("⚠️ Тільки число!"); return
-        p[field]=int(val)
-    elif field=="variants": p[field]=[v.strip() for v in val.split(",")]
-    else: p[field]=val
-    save(items); await state.finish()
-    await msg.answer(f"✅ Оновлено!\n\n{card(p)}",reply_markup=admin_kb())
+    if step == "add_desc":
+        data["desc"] = text.strip(); set_state(cid, "add_variants", data)
+        send(cid, "Варіанти через кому:\n<i>Приклад: 30мл·50мг, 30мл·60мг</i>"); return
 
-@dp.message_handler(lambda m:m.text=="➕ Додати")
-async def add_start(msg:types.Message):
-    if not is_admin(msg.from_user.id): return
-    await Add.name.set(); await msg.answer("➕ <b>Новий товар</b>\nНазва:",reply_markup=types.ReplyKeyboardRemove())
+    if step == "add_variants":
+        items = load()
+        new_p = {"id":nid(),"cat":data["cat"],"name":data["name"],"price":data["price"],
+                 "desc":data["desc"],"variants":[v.strip() for v in text.split(",")]}
+        items.append(new_p); save(items); clear_state(cid)
+        send(cid, f"✅ Додано!\n\n{card(new_p)}", admin_kb()); return
 
-@dp.message_handler(state=Add.name)
-async def add_name(msg:types.Message,state:FSMContext):
-    await state.update_data(name=msg.text.strip()); await Add.cat.set(); await msg.answer("Категорія:",reply_markup=cat_kb())
+    # ── Regular commands ──
+    if text == "/start":
+        send(cid, "👋 <b>Smoke Room Bot</b>\nЗамовлення приходять сюди.\nАдмін: /admin")
+        return
 
-@dp.message_handler(state=Add.cat)
-async def add_cat(msg:types.Message,state:FSMContext):
-    m={"💧 Рідини":"liquid","⚡ Системи":"pod","🌿 Снюс":"snus"}
-    cat=m.get(msg.text)
-    if not cat: await msg.answer("Обери з клавіатури 👇"); return
-    await state.update_data(cat=cat); await Add.price.set(); await msg.answer("Ціна:",reply_markup=types.ReplyKeyboardRemove())
+    if text == "/admin":
+        if uid != ADMIN_ID: send(cid, "⛔️ Доступ заборонено."); return
+        clear_state(cid)
+        send(cid, f"🔧 <b>Адмін-панель</b>\nТоварів: <b>{len(load())}</b>", admin_kb()); return
 
-@dp.message_handler(state=Add.price)
-async def add_price(msg:types.Message,state:FSMContext):
-    if not msg.text.strip().isdigit(): await msg.answer("⚠️ Тільки число!"); return
-    await state.update_data(price=int(msg.text.strip())); await Add.desc.set(); await msg.answer("Опис:")
+    if uid != ADMIN_ID: return  # далі тільки адмін
 
-@dp.message_handler(state=Add.desc)
-async def add_desc(msg:types.Message,state:FSMContext):
-    await state.update_data(desc=msg.text.strip()); await Add.variants.set()
-    await msg.answer("Варіанти через кому:\n<i>Приклад: 30мл·50мг, 30мл·60мг</i>")
+    if text == "❌ Закрити":
+        clear_state(cid); send(cid, "Закрито.", remove_kb()); return
 
-@dp.message_handler(state=Add.variants)
-async def add_variants(msg:types.Message,state:FSMContext):
-    data=await state.get_data(); items=load()
-    new_p={"id":nid(),"cat":data["cat"],"name":data["name"],"price":data["price"],"desc":data["desc"],"variants":[v.strip() for v in msg.text.split(",")]}
-    items.append(new_p); save(items); await state.finish()
-    await msg.answer(f"✅ Додано!\n\n{card(new_p)}",reply_markup=admin_kb())
+    if text == "📋 Товари":
+        items = load()
+        if not items: send(cid, "Порожньо."); return
+        cats = {"liquid":[],"pod":[],"snus":[]}
+        for p in items: cats.get(p["cat"],[]).append(p)
+        t = "📋 <b>Всі товари:</b>\n\n"
+        for cat,icon,label in [("liquid","💧","Рідини"),("pod","⚡","Системи"),("snus","🌿","Снюс")]:
+            if cats[cat]:
+                t += f"{icon} <b>{label}</b>\n"
+                for p in cats[cat]: t += f"  • {p['name']} — {p['price']}₴\n"
+                t += "\n"
+        send(cid, t, products_ik(items)); return
 
-@dp.message_handler(lambda m:m.text=="🗑 Видалити")
-async def del_start(msg:types.Message):
-    if not is_admin(msg.from_user.id): return
-    items=load()
-    if not items: await msg.answer("Порожньо."); return
-    await msg.answer("Який товар видалити?",reply_markup=delete_ik(items))
+    if text == "➕ Додати":
+        set_state(cid, "add_name"); send(cid, "➕ <b>Новий товар</b>\nНазва:", remove_kb()); return
 
-@dp.callback_query_handler(lambda c:c.data.startswith("del:"))
-async def cb_del(cb:types.CallbackQuery):
-    if not is_admin(cb.from_user.id): await cb.answer("⛔️",show_alert=True); return
-    pid=int(cb.data.split(":")[1]); p=find(pid)
-    if not p: await cb.answer("Не знайдено"); return
-    await cb.message.edit_text(f"⚠️ Видалити <b>{p['name']}</b> ({p['price']}₴)?",reply_markup=confirm_ik(pid)); await cb.answer()
+    if text == "🗑 Видалити":
+        items = load()
+        if not items: send(cid, "Порожньо."); return
+        send(cid, "Який товар видалити?", delete_ik(items)); return
 
-@dp.callback_query_handler(lambda c:c.data.startswith("delyes:"))
-async def cb_del_yes(cb:types.CallbackQuery):
-    if not is_admin(cb.from_user.id): await cb.answer("⛔️",show_alert=True); return
-    pid=int(cb.data.split(":")[1]); p=find(pid); items=load()
-    save([x for x in items if x["id"]!=pid])
-    await cb.message.edit_text(f"✅ <b>{p['name']}</b> видалено."); await cb.answer()
+    if text == "📊 Статистика":
+        items = load(); c={"liquid":0,"pod":0,"snus":0}
+        for p in items: c[p.get("cat","liquid")]+=1
+        send(cid, f"📊 <b>Статистика</b>\n\n💧 {c['liquid']}\n⚡ {c['pod']}\n🌿 {c['snus']}\n──\n<b>{len(items)}</b> всього"); return
 
-@dp.callback_query_handler(lambda c:c.data=="cancel")
-async def cb_cancel(cb:types.CallbackQuery):
-    await cb.message.delete(); await cb.answer("Скасовано.")
 
-@dp.message_handler(lambda m:m.text=="📊 Статистика")
-async def stats(msg:types.Message):
-    if not is_admin(msg.from_user.id): return
-    items=load(); c={"liquid":0,"pod":0,"snus":0}
-    for p in items: c[p.get("cat","liquid")]+=1
-    await msg.answer(f"📊 <b>Статистика</b>\n\n💧 Рідини: {c['liquid']}\n⚡ Системи: {c['pod']}\n🌿 Снюс: {c['snus']}\n──\nВсього: <b>{len(items)}</b>")
+def handle_callback(cb):
+    cid    = cb["message"]["chat"]["id"]
+    uid    = cb["from"]["id"]
+    msg_id = cb["message"]["message_id"]
+    d      = cb["data"]
+    answer_cb(cb["id"])
 
-if __name__=="__main__":
-    log.info("Bot started. Admin: %s",ADMIN_ID)
-    executor.start_polling(dp,skip_updates=True)
+    if uid != ADMIN_ID: return
+
+    if d.startswith("ep:"):
+        pid = int(d.split(":")[1]); p = find(pid)
+        if not p: return
+        set_state(cid, "edit_field", {"pid": pid})
+        edit(cid, msg_id, f"✏️ Редагуємо:\n\n{card(p)}\n\n<b>Що змінюємо?</b>", edit_field_ik(pid)); return
+
+    if d.startswith("ef:"):
+        _, pid, field = d.split(":")
+        labels={"name":"назву","price":"ціну (число)","desc":"опис","variants":"варіанти через кому"}
+        set_state(cid, "edit_value", {"pid":int(pid),"field":field})
+        send(cid, f"✏️ Введи нове значення для <b>{labels.get(field,field)}</b>:"); return
+
+    if d == "back":
+        clear_state(cid)
+        edit(cid, msg_id, "📋 Обери товар:", products_ik(load())); return
+
+    if d.startswith("del:"):
+        pid = int(d.split(":")[1]); p = find(pid)
+        if not p: return
+        edit(cid, msg_id, f"⚠️ Видалити <b>{p['name']}</b> ({p['price']}₴)?", confirm_ik(pid)); return
+
+    if d.startswith("delyes:"):
+        pid = int(d.split(":")[1]); p = find(pid); items = load()
+        save([x for x in items if x["id"]!=pid])
+        edit(cid, msg_id, f"✅ <b>{p['name']}</b> видалено."); return
+
+    if d == "cancel":
+        delete_msg(cid, msg_id); return
+
+
+# ── POLLING LOOP ──────────────────────────────────────────────
+def main():
+    log.info("Smoke Room Bot started. Admin: %s", ADMIN_ID)
+    offset = 0
+    while True:
+        try:
+            r = requests.get(f"{API}/getUpdates", params={"offset": offset, "timeout": 30}, timeout=35)
+            updates = r.json().get("result", [])
+            for u in updates:
+                offset = u["update_id"] + 1
+                try:
+                    if "message" in u:
+                        handle_message(u["message"])
+                    elif "callback_query" in u:
+                        handle_callback(u["callback_query"])
+                except Exception as e:
+                    log.error("handler error: %s", e)
+        except Exception as e:
+            log.error("polling error: %s", e)
+            time.sleep(5)
+
+if __name__ == "__main__":
+    main()
