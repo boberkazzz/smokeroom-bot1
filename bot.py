@@ -231,6 +231,11 @@ def handle_message(msg):
     cid  = msg["chat"]["id"]
     uid  = msg["from"]["id"]
     text = msg.get("text", "")
+
+    # Тiльки адмiн — решта мовчки iгноруємо
+    if uid != ADMIN_ID:
+        return
+
     st   = get_state(cid)
     step = st.get("step")
     data = st.get("data", {})
@@ -328,9 +333,13 @@ def handle_callback(cb):
     uid    = cb["from"]["id"]
     msg_id = cb["message"]["message_id"]
     d      = cb["data"]
-    answer_cb(cb["id"])
 
-    if uid != ADMIN_ID: return
+    # Тiльки адмiн
+    if uid != ADMIN_ID:
+        answer_cb(cb["id"])
+        return
+
+    answer_cb(cb["id"])
 
     if d.startswith("ep:"):
         pid = int(d.split(":")[1]); p = find(pid)
