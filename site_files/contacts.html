@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Контакти — SMOKE ROOM</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root{--bg:#0d0d0d;--surface:#161616;--surface2:#1c1c1c;--border:#2a2a2a;--accent:#e8ff00;--accent2:#ff4c00;--text:#f0f0f0;--muted:#666;--font-h:'Bebas Neue',sans-serif;--font-b:'DM Sans',sans-serif;--r:4px;--max:1200px}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:15px;line-height:1.6;overflow-x:hidden}
+    a{color:inherit;text-decoration:none}
+    button{font-family:var(--font-b);cursor:pointer;border:none}
+    .container{max-width:var(--max);margin:0 auto;padding:0 20px}
+
+    header{position:sticky;top:0;z-index:100;background:rgba(13,13,13,.92);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+    .header-inner{display:flex;align-items:center;justify-content:space-between;height:58px}
+    .logo{font-family:var(--font-h);font-size:26px;letter-spacing:.06em}.logo span{color:var(--accent)}
+    nav{display:flex;gap:28px}
+    nav a{font-size:13px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);transition:color .2s}
+    nav a:hover,nav a.active{color:var(--text)}
+    .cart-btn{background:var(--accent);color:#000;font-weight:700;font-size:12px;letter-spacing:.07em;text-transform:uppercase;padding:8px 18px;border-radius:var(--r)}
+
+    .page-hero{padding:56px 0 40px;border-bottom:1px solid var(--border)}
+    .breadcrumb{font-size:12px;color:var(--muted);letter-spacing:.06em;margin-bottom:20px}
+    .breadcrumb a{color:var(--muted)}.breadcrumb span{margin:0 8px}
+    .page-title{font-family:var(--font-h);font-size:clamp(48px,9vw,96px);line-height:.95;letter-spacing:.01em}
+    .page-title em{font-style:normal;color:var(--accent)}
+
+    /* CONTACT LAYOUT */
+    .contacts-layout{display:grid;grid-template-columns:1fr 1fr;gap:64px;padding:64px 0 80px}
+
+    /* LEFT */
+    .contact-cards{display:flex;flex-direction:column;gap:16px}
+    .contact-card{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:24px;transition:border-color .2s}
+    .contact-card:hover{border-color:#3a3a3a}
+    .cc-icon{font-size:28px;margin-bottom:12px}
+    .cc-label{font-size:11px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+    .cc-value{font-size:16px;font-weight:500}
+    .cc-value a{transition:color .2s}
+    .cc-value a:hover{color:var(--accent)}
+    .cc-sub{font-size:13px;color:var(--muted);margin-top:4px}
+
+    /* TG CARDS */
+    .tg-card{background:var(--surface);border:1px solid #1a3a4a;border-radius:6px;padding:24px;display:flex;align-items:center;gap:16px;transition:border-color .2s;text-decoration:none;color:inherit}
+    .tg-card:hover{border-color:#229ED9}
+    .tg-icon{width:52px;height:52px;background:#229ED9;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .tg-icon svg{width:28px;height:28px}
+    .tg-card-info{}
+    .tg-card-label{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+    .tg-card-name{font-size:16px;font-weight:500}
+    .tg-card-desc{font-size:13px;color:var(--muted);margin-top:3px}
+    .tg-arrow{margin-left:auto;color:var(--muted);font-size:20px;flex-shrink:0}
+
+    /* RIGHT — MAP PLACEHOLDER + HOURS */
+    .right-col{}
+    .map-placeholder{background:var(--surface);border:1px solid var(--border);border-radius:6px;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:var(--muted);margin-bottom:24px}
+    .map-placeholder .map-icon{font-size:48px}
+    .map-placeholder p{font-size:14px}
+    .map-placeholder a{color:var(--accent);font-size:13px;margin-top:4px;display:block}
+
+    .hours-title{font-family:var(--font-h);font-size:28px;letter-spacing:.04em;margin-bottom:16px}
+    .hours-table{width:100%;border-collapse:collapse}
+    .hours-table tr{border-bottom:1px solid var(--border)}
+    .hours-table td{padding:11px 0;font-size:13px}
+    .hours-table td:first-child{color:var(--muted);width:55%}
+    .hours-table td:last-child{color:var(--text);font-weight:500;text-align:right}
+    .hours-accent{color:var(--accent) !important}
+
+    /* FAQ */
+    .faq-section{padding:60px 0 80px;border-top:1px solid var(--border)}
+    .section-title{font-family:var(--font-h);font-size:clamp(36px,5vw,52px);margin-bottom:32px}
+    .faq-list{display:flex;flex-direction:column;gap:2px}
+    .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden}
+    .faq-q{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;cursor:pointer;font-weight:500;font-size:15px;transition:background .15s;gap:12px}
+    .faq-q:hover{background:var(--surface2)}
+    .faq-icon{color:var(--accent);font-size:22px;flex-shrink:0;transition:transform .25s}
+    .faq-a{display:none;padding:0 20px 18px;color:var(--muted);font-size:14px;line-height:1.75}
+    .faq-item.open .faq-a{display:block}
+    .faq-item.open .faq-icon{transform:rotate(45deg)}
+
+    /* TG FLOAT */
+    .tg-float{position:fixed;bottom:28px;right:24px;z-index:150;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+    .tg-tooltip-f{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 14px;font-size:13px;white-space:nowrap;animation:fadeUp .4s ease;display:none}
+    .tg-float:hover .tg-tooltip-f{display:block}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+    .tg-btn-f{width:56px;height:56px;background:#229ED9;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(34,158,217,.4);transition:transform .2s}
+    .tg-btn-f:hover{transform:scale(1.1)}
+    .tg-btn-f svg{width:28px;height:28px}
+
+    /* FOOTER */
+    footer{border-top:1px solid var(--border);padding:48px 0 32px}
+    .footer-grid{display:grid;grid-template-columns:1.8fr 1fr 1fr;gap:40px;margin-bottom:40px}
+    .footer-logo{font-family:var(--font-h);font-size:30px;margin-bottom:12px}.footer-logo span{color:var(--accent)}
+    .footer-desc{color:var(--muted);font-size:13px;max-width:260px;line-height:1.7}
+    .footer-col h4{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:16px}
+    .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:10px}
+    .footer-col ul a{font-size:14px;color:var(--text);transition:color .2s}
+    .footer-col ul a:hover{color:var(--accent)}
+    .footer-bottom{border-top:1px solid var(--border);padding-top:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+    .footer-copy{font-size:12px;color:var(--muted)}
+    .age-badge{background:var(--accent2);color:#fff;font-weight:700;font-size:12px;padding:5px 10px;border-radius:4px}
+
+    @media(max-width:860px){
+      nav{display:none}
+      .contacts-layout{grid-template-columns:1fr;gap:40px;padding:40px 0 60px}
+      .footer-grid{grid-template-columns:1fr;gap:28px}
+    }
+
+  /* ── DELIVERY MODAL ── */
+  .modal-overlay {
+    position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;
+    opacity:0;pointer-events:none;transition:opacity .25s;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-overlay.open { opacity:1;pointer-events:all; }
+  .modal-box {
+    background:#161616;border:1px solid #2a2a2a;border-radius:10px;
+    width:100%;max-width:480px;max-height:85vh;overflow-y:auto;
+    transform:translateY(20px) scale(.97);transition:transform .25s cubic-bezier(.4,0,.2,1);
+  }
+  .modal-overlay.open .modal-box { transform:translateY(0) scale(1); }
+  .modal-head {
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 24px;border-bottom:1px solid #2a2a2a;position:sticky;top:0;
+    background:#161616;z-index:1;
+  }
+  .modal-title { font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.04em; }
+  .modal-close {
+    background:transparent;border:none;color:#666;font-size:22px;
+    cursor:pointer;padding:4px;line-height:1;transition:color .2s;
+  }
+  .modal-close:hover { color:#f0f0f0; }
+  .modal-body { padding:20px 24px; }
+  .delivery-row {
+    display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #1e1e1e;
+    align-items:flex-start;
+  }
+  .delivery-row:last-child { border-bottom:none; }
+  .d-icon { font-size:28px;flex-shrink:0;margin-top:2px; }
+  .d-title { font-weight:600;font-size:14px;margin-bottom:4px; }
+  .d-text { font-size:13px;color:#888;line-height:1.6; }
+  .d-badge {
+    display:inline-block;background:#e8ff00;color:#000;
+    font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 7px;border-radius:2px;margin-left:8px;vertical-align:middle;
+  }
+  .d-badge.orange { background:#ff4c00;color:#fff; }
+
+  /* ── ABOUT MODAL ── */
+  .about-badge {
+    display:inline-block;background:rgba(232,255,0,.1);border:1px solid rgba(232,255,0,.3);
+    color:#e8ff00;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+    padding:3px 10px;border-radius:2px;margin-bottom:16px;
+  }
+  .about-stat { text-align:center;padding:16px 12px; }
+  .about-stat-num { font-family:'Bebas Neue',sans-serif;font-size:42px;color:#e8ff00;line-height:1; }
+  .about-stat-label { font-size:12px;color:#666;margin-top:4px;text-transform:uppercase;letter-spacing:.06em; }
+
+  /* ── MOBILE MENU ── */
+  .mobile-nav {
+    position:fixed;top:58px;left:0;right:0;bottom:0;
+    background:rgba(13,13,13,.98);backdrop-filter:blur(20px);
+    z-index:99;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    transform:translateY(-100%);opacity:0;
+    transition:transform .35s cubic-bezier(.4,0,.2,1), opacity .35s;
+    pointer-events:none;
+  }
+  .mobile-nav.open {
+    transform:translateY(0);opacity:1;pointer-events:all;
+  }
+  .mobile-nav a, .mobile-nav button {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:42px;letter-spacing:.04em;
+    color:var(--text);text-decoration:none;
+    background:transparent;border:none;cursor:pointer;
+    padding:8px 24px;
+    transition:color .2s;
+    display:block;text-align:center;
+  }
+  .mobile-nav a:hover, .mobile-nav button:hover { color:var(--accent); }
+  .mobile-nav-divider { width:40px;height:1px;background:var(--border);margin:8px 0; }
+  .mobile-nav-tg {
+    display:flex;align-items:center;gap:10px;
+    background:#229ED9;color:#fff !important;
+    font-size:20px !important;letter-spacing:.06em;
+    padding:12px 28px !important;border-radius:6px;margin-top:8px;
+  }
+  /* Burger animation when open */
+  .burger.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+  .burger.open span:nth-child(2) { opacity:0;transform:translateX(-10px); }
+  .burger.open span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="container header-inner">
+    <a href="index.html" class="logo">SMOKE<span>.</span>ROOM</a>
+    <nav>
+      <a href="index.html">Головна</a>
+      <a href="catalog.html">Каталог</a>
+      <a href="contacts.html" class="active">Контакти</a>
+    </nav>
+    <a href="catalog.html" class="cart-btn">Каталог →</a>
+  </div>
+</header>
+
+<!-- ── MOBILE NAV ── -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html" onclick="closeMobileMenu()">Головна</a>
+  <a href="catalog.html" onclick="closeMobileMenu()">Каталог</a>
+  <a href="contacts.html" onclick="closeMobileMenu()">Контакти</a>
+  <div class="mobile-nav-divider"></div>
+  <button onclick="closeMobileMenu();openAboutModal()">Про нас</button>
+  <button onclick="closeMobileMenu();openDeliveryModal()">Доставка</button>
+  <div class="mobile-nav-divider"></div>
+  <a class="mobile-nav-tg" href="https://t.me/V3e3d" target="_blank" onclick="closeMobileMenu()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.94z"/></svg>
+    @V3e3d
+  </a>
+</div>
+
+<section class="page-hero">
+  <div class="container">
+    <div class="breadcrumb">
+      <a href="index.html">Головна</a><span>→</span>Контакти
+    </div>
+    <h1 class="page-title">КОН<em>ТАК</em>ТИ</h1>
+  </div>
+</section>
+
+<div class="container">
+  <div class="contacts-layout">
+
+    <!-- LEFT -->
+    <div>
+      <div class="contact-cards">
+
+        <div class="contact-card">
+          <div class="cc-icon">📍</div>
+          <div class="cc-label">Адреса магазину</div>
+          <div class="cc-value">м. Дніпро, вул. Набережна Заводська, 97Д________, б. __</div>
+          <div class="cc-sub">Найближча зупинка: ___________</div>
+        </div>
+
+        <div class="contact-card">
+          <div class="cc-icon">📞</div>
+          <div class="cc-label">Телефон</div>
+          <div class="cc-value"><a href="tel:+380000000000">+38 (000) 000-00-00</a></div>
+          <div class="cc-sub">Пн–Нд · 10:00 – 21:00</div>
+        </div>
+
+      </div>
+
+      <!-- TG CARDS -->
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:10px">
+        <a class="tg-card" href="https://t.me/V3e3d" target="_blank">
+          <div class="tg-icon">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.94z"/></svg>
+          </div>
+          <div class="tg-card-info">
+            <div class="tg-card-label">Консультація</div>
+            <div class="tg-card-name">@V3e3d</div>
+            <div class="tg-card-desc">Особисті повідомлення · Відповідаємо швидко</div>
+          </div>
+          <div class="tg-arrow">→</div>
+        </a>
+
+        <a class="tg-card" href="https://t.me/+UNJlTG0qhXJkZWIy" target="_blank">
+          <div class="tg-icon">
+            <svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.94z"/></svg>
+          </div>
+          <div class="tg-card-info">
+            <div class="tg-card-label">Канал з новинками</div>
+            <div class="tg-card-name">Канал Smoke Room</div>
+            <div class="tg-card-desc">Актуальні залишки · Нові надходження · Акції</div>
+          </div>
+          <div class="tg-arrow">→</div>
+        </a>
+      </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="right-col">
+      <div class="map-placeholder">
+        <div class="map-icon">🗺️</div>
+        <p>Карта буде тут</p>
+        <a href="https://maps.google.com" target="_blank">Відкрити в Google Maps →</a>
+      </div>
+
+      <div class="hours-title">ГРАФІК РОБОТИ</div>
+      <table class="hours-table">
+        <tbody>
+          <tr><td>Понеділок – П'ятниця</td><td class="hours-accent">10:00 – 21:00</td></tr>
+          <tr><td>Субота</td><td class="hours-accent">10:00 – 21:00</td></tr>
+          <tr><td>Неділя</td><td class="hours-accent">11:00 – 20:00</td></tr>
+          <tr><td>Самовивіз (готовність)</td><td>~2 години</td></tr>
+          <tr><td>Нова Пошта (відправка)</td><td>До 18:00 в день замовлення</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- FAQ -->
+<section class="faq-section">
+  <div class="container">
+    <h2 class="section-title">ПИТАННЯ / ВІДПОВІДІ</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Як оформити замовлення?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Обери товар у каталозі, натисни "+ Кошик", заповни ім'я та телефон, обери доставку — і натисни "Відправити замовлення". Ми отримаємо заявку в Telegram та зв'яжемося з тобою для підтвердження.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Які способи доставки?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Самовивіз у Дніпрі — безкоштовно, готово за ~2 години. Нова Пошта — по всій Україні, відправляємо в день замовлення (до 18:00). Вартість доставки — за тарифами перевізника.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Як оплатити?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Готівкою при самовивозі або переказом на картку перед відправкою Новою Поштою. Реквізити надаємо після підтвердження замовлення в Telegram.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Чи є вікове обмеження?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Так. Продаж нікотинової продукції здійснюється виключно особам від 18 років. При самовивозі може знадобитися документ, що підтверджує вік.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">
+          Як слідкувати за залишками та новинками?
+          <span class="faq-icon">+</span>
+        </div>
+        <div class="faq-a">Підпишися на наш Telegram-канал <a href="https://t.me/+UNJlTG0qhXJkZWIy" style="color:var(--accent)" target="_blank">Канал Smoke Room</a> — там актуальні залишки, нові надходження та спецпропозиції.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">SMOKE<span>.</span>ROOM</div>
+        <p class="footer-desc">Мінімалістичний магазин для тих, хто цінує якість. Дніпро та доставка по Україні.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Каталог</h4>
+        <ul>
+          <li><a href="catalog.html">Рідини</a></li>
+          <li><a href="catalog.html">Картриджні системи</a></li>
+          <li><a href="catalog.html">Снюс</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Інфо</h4>
+        <ul>
+          <li><a href="contacts.html">Контакти</a></li>
+          <li><a href="https://t.me/+UNJlTG0qhXJkZWIy" target="_blank">Telegram-канал</a></li>
+          <li><a href="#" onclick="event.preventDefault();openDeliveryModal()" style="cursor:pointer">Умови доставки</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 Smoke Room · Дніпро</span>
+      <span class="age-badge">18+</span>
+    </div>
+  </div>
+</footer>
+
+<!-- TG FLOAT -->
+<div class="tg-float">
+  <a class="tg-btn-f" href="https://t.me/V3e3d" target="_blank">
+    <svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.94z"/></svg>
+  </a>
+  <div class="tg-tooltip-f">Написати @V3e3d</div>
+</div>
+
+<script>
+  function toggleFaq(el) {
+    const item = el.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ── DELIVERY MODAL ──
+  function openDeliveryModal() {
+    document.getElementById('deliveryModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDeliveryModal(e) {
+    if (!e || e.target === document.getElementById('deliveryModal')) {
+      document.getElementById('deliveryModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDeliveryModal();
+  });
+
+  function openAboutModal() {
+    document.getElementById('aboutModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function toggleMenu() {
+    const nav = document.getElementById('mobileNav');
+    const burger = document.querySelector('.burger');
+    nav.classList.toggle('open');
+    burger.classList.toggle('open');
+    document.body.style.overflow = nav.classList.contains('open') ? 'hidden' : '';
+  }
+  function closeMobileMenu() {
+    document.getElementById('mobileNav').classList.remove('open');
+    document.querySelector('.burger').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+</script>
+
+<!-- ── DELIVERY MODAL ── -->
+<div class="modal-overlay" id="deliveryModal" onclick="closeDeliveryModal(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">УМОВИ ДОСТАВКИ</span>
+      <button class="modal-close" onclick="document.getElementById('deliveryModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="delivery-row">
+        <div class="d-icon">🏪</div>
+        <div>
+          <div class="d-title">Самовивіз — Дніпро <span class="d-badge">Безкоштовно</span></div>
+          <div class="d-text">
+            вул. Набережна Заводська, 97Д<br>
+            Готовність замовлення: <strong style="color:#f0f0f0">~2 години</strong><br>
+            Графік: Пн–Нд 10:00–21:00
+          </div>
+        </div>
+      </div>
+
+      <div class="delivery-row">
+        <div class="d-icon">📦</div>
+        <div>
+          <div class="d-title">Нова Пошта — вся Україна</div>
+          <div class="d-text">
+            Відправка в день замовлення (до 18:00)<br>
+            Термін доставки: <strong style="color:#f0f0f0">1–3 дні</strong><br>
+            Вартість: за тарифами Нової Пошти
+          </div>
+        </div>
+      </div>
+
+      <div class="delivery-row">
+        <div class="d-icon">💳</div>
+        <div>
+          <div class="d-title">Оплата</div>
+          <div class="d-text">
+            <strong style="color:#f0f0f0">Самовивіз:</strong> готівка на місці або переказ на карту<br>
+            <strong style="color:#f0f0f0">Нова Пошта:</strong> переказ на карту до відправки або Після оплата<br><br>
+            Карта: <span style="color:#e8ff00;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.06em">4441 1111 8866 1288</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="delivery-row">
+        <div class="d-icon">💬</div>
+        <div>
+          <div class="d-title">Є питання?</div>
+          <div class="d-text">
+            Пишіть менеджеру Максиму — відповідаємо швидко<br>
+            <a href="https://t.me/V3e3d" target="_blank" style="color:#229ED9;font-weight:600">@V3e3d в Telegram →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── ABOUT MODAL ── -->
+<div class="modal-overlay" id="aboutModal" onclick="if(event.target===this){this.classList.remove('open');document.body.style.overflow=''}">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">ПРО НАС</span>
+      <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open');document.body.style.overflow=''">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="about-badge">Smoke Room · Дніпро</div>
+      <p style="color:#aaa;font-size:14px;line-height:1.75;margin-bottom:20px">
+        Ми — команда, яка знає толк у якісній продукції. Smoke Room — це мінімалістичний магазин у Дніпрі з великим вибором рідин, картриджних систем та снюсу.
+      </p>
+      <p style="color:#aaa;font-size:14px;line-height:1.75;margin-bottom:24px">
+        Тільки оригінальна продукція від перевірених постачальників. Відповідаємо за якість кожної позиції.
+      </p>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#2a2a2a;border-radius:6px;overflow:hidden;margin-bottom:24px">
+        <div class="about-stat" style="background:#1a1a1a">
+          <div class="about-stat-num">150+</div>
+          <div class="about-stat-label">Позицій</div>
+        </div>
+        <div class="about-stat" style="background:#1a1a1a">
+          <div class="about-stat-num">2год</div>
+          <div class="about-stat-label">Самовивіз</div>
+        </div>
+        <div class="about-stat" style="background:#1a1a1a">
+          <div class="about-stat-num">НП</div>
+          <div class="about-stat-label">По Україні</div>
+        </div>
+      </div>
+
+      <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:14px 16px;margin-bottom:14px">
+        <div style="font-size:11px;color:#666;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Адреса</div>
+        <div style="font-size:14px">📍 вул. Набережна Заводська, 97Д, Дніпро</div>
+        <a href="https://www.google.com/maps/place/Comfy/@48.4853753,34.9238763,67m/" target="_blank"
+           style="font-size:12px;color:#e8ff00;margin-top:6px;display:inline-block">Відкрити в Google Maps →</a>
+      </div>
+
+      <a href="https://t.me/V3e3d" target="_blank"
+         style="display:flex;align-items:center;justify-content:center;gap:8px;background:#229ED9;color:#fff;font-weight:700;font-size:13px;letter-spacing:.07em;text-transform:uppercase;padding:13px;border-radius:6px;text-decoration:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.94z"/></svg>
+        Написати менеджеру @V3e3d
+      </a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

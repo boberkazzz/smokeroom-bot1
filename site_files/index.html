@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMOKE ROOM — Дніпро</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ─── TOKENS ─────────────────────────────────────────────── */
+    :root {
+      --bg:       #0d0d0d;
+      --surface:  #161616;
+      --border:   #2a2a2a;
+      --accent:   #e8ff00;        /* neon-yellow — "промисловий" акцент */
+      --accent2:  #ff4c00;        /* помаранчевий для тегів / badge */
+      --text:     #f0f0f0;
+      --muted:    #666;
+      --font-h:   'Bebas Neue', sans-serif;
+      --font-b:   'DM Sans', sans-serif;
+      --r:        4px;
+      --max:      1200px;
+    }
+
+    /* ─── RESET ──────────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    :target { scroll-margin-top: 70px; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-b);
+      font-size: 15px;
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { font-family: var(--font-b); cursor: pointer; border: none; }
+
+    /* ─── UTILITY ────────────────────────────────────────────── */
+    .container { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+    .tag {
+      display: inline-block;
+      background: var(--accent2);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      border-radius: 2px;
+    }
+
+    /* ─── HEADER ─────────────────────────────────────────────── */
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(13,13,13,.92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--border);
+    }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 58px;
+    }
+    .logo {
+      font-family: var(--font-h);
+      font-size: 26px;
+      letter-spacing: .06em;
+    }
+    .logo span { color: var(--accent); }
+    nav { display: flex; gap: 28px; }
+    nav a {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      transition: color .2s;
+    }
+    nav a:hover { color: var(--text); }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .cart-btn {
+      position: relative;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      padding: 8px 18px;
+      border-radius: var(--r);
+      transition: opacity .2s;
+    }
+    .cart-btn:hover { opacity: .85; }
+    .cart-badge {
+      position: absolute; top: -6px; right: -6px;
+      background: var(--accent2);
+      color: #fff;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      font-size: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700;
+    }
+    .burger { display: none; flex-direction: column; gap: 5px; padding: 6px; cursor: pointer; }
+    .burger span { width: 24px; height: 2px; background: var(--text); display: block; transition: .3s; }
+
+    /* ─── HERO ───────────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      min-height: 72vh;
+      display: flex; align-items: flex-end;
+      padding-bottom: 64px;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        linear-gradient(120deg, #0d0d0d 40%, transparent 100%),
+        radial-gradient(ellipse 70% 80% at 80% 30%, #1a1a00 0%, transparent 70%),
+        #0d0d0d;
+    }
+    /* noise grain overlay */
+    .hero-bg::after {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.04'/%3E%3C/svg%3E");
+      background-size: 200px;
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; }
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-family: var(--font-h);
+      font-size: clamp(60px, 12vw, 130px);
+      line-height: .92;
+      letter-spacing: -.01em;
+      margin-bottom: 24px;
+    }
+    .hero-title em {
+      font-style: normal;
+      color: var(--accent);
+    }
+    .hero-sub {
+      max-width: 420px;
+      color: var(--muted);
+      font-size: 15px;
+      margin-bottom: 36px;
+      line-height: 1.7;
+    }
+    .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 14px 32px;
+      border-radius: var(--r);
+      transition: transform .15s, opacity .15s;
+    }
+    .btn-primary:hover { transform: translateY(-1px); opacity: .9; }
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      font-weight: 500;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 14px 32px;
+      border-radius: var(--r);
+      border: 1px solid var(--border);
+      transition: border-color .2s, color .2s;
+    }
+    .btn-outline:hover { border-color: var(--text); }
+    /* stats strip */
+    .hero-stats {
+      display: flex; gap: 48px;
+      margin-top: 56px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+    .stat-num {
+      font-family: var(--font-h);
+      font-size: 38px;
+      color: var(--accent);
+      line-height: 1;
+    }
+    .stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .07em; }
+
+    /* ─── MARQUEE ────────────────────────────────────────────── */
+    .marquee-wrap {
+      overflow: hidden;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+      background: var(--surface);
+    }
+    .marquee-track {
+      display: flex; gap: 0;
+      animation: marquee 18s linear infinite;
+      white-space: nowrap;
+    }
+    .marquee-item {
+      font-family: var(--font-h);
+      font-size: 15px;
+      letter-spacing: .12em;
+      color: var(--muted);
+      padding: 0 32px;
+      display: flex; align-items: center; gap: 16px;
+    }
+    .marquee-item .dot { width: 5px; height: 5px; background: var(--accent); border-radius: 50%; }
+    @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+
+    /* ─── SECTION TITLES ─────────────────────────────────────── */
+    .section { padding: 80px 0; }
+    .section-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      margin-bottom: 40px;
+      gap: 16px;
+    }
+    .section-title {
+      font-family: var(--font-h);
+      font-size: clamp(36px, 6vw, 58px);
+      letter-spacing: .02em;
+      line-height: 1;
+    }
+    .section-link {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 2px;
+      transition: color .2s, border-color .2s;
+    }
+    .section-link:hover { color: var(--text); border-color: var(--text); }
+
+    /* ─── CATEGORIES ─────────────────────────────────────────── */
+    .cat-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+    }
+    .cat-card {
+      position: relative;
+      aspect-ratio: 4/3;
+      background: var(--surface);
+      overflow: hidden;
+      cursor: pointer;
+      display: flex; align-items: flex-end;
+    }
+    .cat-card::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.85) 0%, transparent 55%);
+      z-index: 1;
+    }
+    .cat-bg {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 90px;
+      opacity: .12;
+      transition: transform .5s ease, opacity .4s;
+    }
+    .cat-card:hover .cat-bg { transform: scale(1.08); opacity: .18; }
+    .cat-info {
+      position: relative; z-index: 2;
+      padding: 20px;
+      width: 100%;
+    }
+    .cat-name {
+      font-family: var(--font-h);
+      font-size: 28px;
+      letter-spacing: .04em;
+      line-height: 1;
+    }
+    .cat-count { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+    /* ─── PRODUCTS ───────────────────────────────────────────── */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .product-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+      transition: border-color .2s, transform .2s;
+      display: flex; flex-direction: column;
+    }
+    .product-card:hover { border-color: #3a3a3a; transform: translateY(-2px); }
+    .product-img {
+      aspect-ratio: 1;
+      background: #1c1c1c;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 70px;
+      position: relative;
+    }
+    .product-badge {
+      position: absolute; top: 12px; left: 12px;
+    }
+    .product-body { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 8px; }
+    .product-brand { font-size: 11px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase; }
+    .product-name { font-weight: 500; font-size: 15px; line-height: 1.3; }
+    .product-variants {
+      display: flex; gap: 6px; flex-wrap: wrap;
+    }
+    .variant-chip {
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      padding: 3px 8px;
+      font-size: 11px;
+      color: var(--muted);
+      cursor: pointer;
+      transition: border-color .15s, color .15s;
+    }
+    .variant-chip:hover,
+    .variant-chip.active { border-color: var(--accent); color: var(--accent); }
+    .product-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      border-top: 1px solid var(--border);
+    }
+    .product-price {
+      font-family: var(--font-h);
+      font-size: 22px;
+      letter-spacing: .02em;
+    }
+    .add-btn {
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 8px 14px;
+      border-radius: var(--r);
+      transition: opacity .15s, transform .15s;
+    }
+    .add-btn:hover { opacity: .85; transform: scale(.97); }
+    .add-btn.added { background: #2a2a2a; color: var(--accent); border: 1px solid var(--accent); }
+
+    /* ─── CART DRAWER ────────────────────────────────────────── */
+    .overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.7);
+      z-index: 200;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s;
+    }
+    .overlay.open { opacity: 1; pointer-events: all; }
+    .cart-drawer {
+      position: fixed; top: 0; right: 0; bottom: 0;
+      width: min(420px, 100vw);
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      z-index: 201;
+      transform: translateX(100%);
+      transition: transform .35s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+    }
+    .cart-drawer.open { transform: translateX(0); }
+    .drawer-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .drawer-title { font-family: var(--font-h); font-size: 28px; }
+    .close-btn {
+      background: transparent;
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1;
+      padding: 4px;
+      transition: color .2s;
+    }
+    .close-btn:hover { color: var(--text); }
+    .drawer-items { flex: 1; overflow-y: auto; padding: 16px 24px; }
+    .cart-item {
+      display: flex; gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .ci-emoji { font-size: 36px; width: 48px; text-align: center; }
+    .ci-info { flex: 1; }
+    .ci-name { font-weight: 500; font-size: 14px; }
+    .ci-variant { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .ci-price { font-family: var(--font-h); font-size: 18px; margin-top: 4px; }
+    .ci-remove {
+      background: transparent;
+      color: var(--muted);
+      font-size: 18px;
+      padding: 4px;
+      transition: color .2s;
+    }
+    .ci-remove:hover { color: var(--accent2); }
+    .drawer-form { padding: 20px 24px; border-top: 1px solid var(--border); flex-shrink: 0; }
+    .form-title { font-family: var(--font-h); font-size: 22px; margin-bottom: 14px; }
+    .form-field { margin-bottom: 12px; }
+    .form-field label { display: block; font-size: 11px; color: var(--muted); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 6px; }
+    .form-field input,
+    .form-field select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--font-b);
+      font-size: 14px;
+      padding: 10px 14px;
+      border-radius: var(--r);
+      outline: none;
+      transition: border-color .2s;
+      -webkit-appearance: none;
+    }
+    .form-field input:focus,
+    .form-field select:focus { border-color: var(--accent); }
+    .submit-btn {
+      width: 100%;
+      background: var(--accent);
+      color: #000;
+      font-weight: 700;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: 14px;
+      border-radius: var(--r);
+      margin-top: 8px;
+      transition: opacity .2s;
+    }
+    .submit-btn:hover { opacity: .88; }
+    .empty-cart { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-cart .emoji { font-size: 56px; }
+
+    /* ─── TELEGRAM FLOAT ─────────────────────────────────────── */
+    .tg-float {
+      position: fixed; bottom: 28px; right: 24px;
+      z-index: 150;
+      display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+    }
+    .tg-tooltip {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      white-space: nowrap;
+      animation: fadeUp .4s ease;
+      display: none;
+    }
+    .tg-btn:hover + .tg-tooltip,
+    .tg-float:hover .tg-tooltip { display: block; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    .tg-btn {
+      width: 56px; height: 56px;
+      background: #229ED9;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(34,158,217,.4);
+      transition: transform .2s, box-shadow .2s;
+      text-decoration: none;
+    }
+    .tg-btn:hover { transform: scale(1.1); box-shadow: 0 6px 28px rgba(34,158,217,.55); }
+    .tg-btn svg { width: 28px; height: 28px; }
+
+    /* ─── FOOTER ─────────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 0 32px;
+      margin-top: 40px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+    .footer-logo { font-family: var(--font-h); font-size: 30px; margin-bottom: 12px; }
+    .footer-logo span { color: var(--accent); }
+    .footer-desc { color: var(--muted); font-size: 13px; max-width: 260px; line-height: 1.7; }
+    .footer-col h4 { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+    .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .footer-col ul a { font-size: 14px; color: var(--text); transition: color .2s; }
+    .footer-col ul a:hover { color: var(--accent); }
+    .footer-bottom {
+      border-top: 1px solid var(--border);
+      padding-top: 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .footer-copy { font-size: 12px; color: var(--muted); }
+    .age-badge {
+      background: var(--accent2);
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 4px;
+      letter-spacing: .04em;
+    }
+
+    /* ─── TOAST ──────────────────────────────────────────────── */
+    .toast {
+      position: fixed; bottom: 96px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--surface);
+      border: 1px solid var(--accent);
+      color: var(--text);
+      padding: 12px 22px;
+      border-radius: var(--r);
+      font-size: 13px;
+      font-weight: 500;
+      opacity: 0;
+      z-index: 300;
+      transition: opacity .3s, transform .3s;
+      pointer-events: none;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    /* ─── MOBILE ─────────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { display: none; }
+      .burger { display: flex; }
+      .cat-grid { grid-template-columns: 1fr; }
+      .hero-title { font-size: clamp(52px, 18vw, 80px); }
+      .hero-stats { gap: 28px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .section { padding: 56px 0; }
+      .products-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    }
+    @media (max-width: 400px) {
+      .products-grid { grid-template-columns: 1fr; }
+    }
+
+  /* ── DELIVERY MODAL ── */
+  .modal-overlay {
+    position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:600;
+    opacity:0;pointer-events:none;transition:opacity .25s;
+    display:flex;align-items:center;justify-content:center;padding:20px;
+  }
+  .modal-overlay.open { opacity:1;pointer-events:all; }
+  .modal-box {
+    background:#161616;border:1px solid #2a2a2a;border-radius:10px;
+    width:100%;max-width:480px;max-height:85vh;overflow-y:auto;
+    transform:translateY(20px) scale(.97);transition:transform .25s cubic-bezier(.4,0,.2,1);
+  }
+  .modal-overlay.open .modal-box { transform:translateY(0) scale(1); }
+  .modal-head {
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 24px;border-bottom:1px solid #2a2a2a;position:sticky;top:0;
+    background:#161616;z-index:1;
+  }
+  .modal-title { font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.04em; }
+  .modal-close {
+    background:transparent;border:none;color:#666;font-size:22px;
+    cursor:pointer;padding:4px;line-height:1;transition:color .2s;
+  }
+  .modal-close:hover { color:#f0f0f0; }
+  .modal-body { padding:20px 24px; }
+  .delivery-row {
+    display:flex;gap:14px;padding:16px 0;border-bottom:1px solid #1e1e1e;
+    align-items:flex-start;
+  }
+  .delivery-row:last-child { border-bottom:none; }
+  .d-icon { font-size:28px;flex-shrink:0;margin-top:2px; }
+  .d-title { font-weight:600;font-size:14px;margin-bottom:4px; }
+  .d-text { font-size:13px;color:#888;line-height:1.6; }
+  .d-badge {
+    display:inline-block;background:#e8ff00;color:#000;
+    font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:2px 7px;border-radius:2px;margin-left:8px;vertical-align:middle;
+  }
+  .d-badge.orange { background:#ff4c00;color:#fff; }
+
+  /* ── ABOUT MODAL ── */
+  .about-badge {
+    display:inline-block;background:rgba(232,255,0,.1);border:1px solid rgba(232,255,0,.3);
+    color:#e8ff00;font-size:11px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+    padding:3px 10px;border-radius:2px;margin-bottom:16px;
+  }
+  .about-stat { text-align:center;padding:16px 12px; }
+  .about-stat-num { font-family:'Bebas Neue',sans-serif;font-size:42px;color:#e8ff00;line-height:1; }
+  .about-stat-label { font-size:12px;color:#666;margin-top:4px;text-transform:uppercase;letter-spacing:.06em; }
+
+  /* ── MOBILE MENU ── */
+  .mobile-nav {
+    position:fixed;top:58px;left:0;right:0;bottom:0;
+    background:rgba(13,13,13,.98);backdrop-filter:blur(20px);
+    z-index:99;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
+    transform:translateY(-100%);opacity:0;
+    transition:transform .35s cubic-bezier(.4,0,.2,1), opacity .35s;
+    pointer-events:none;
+  }
+  .mobile-nav.open {
+    transform:translateY(0);opacity:1;pointer-events:all;
+  }
+  .mobile-nav a, .mobile-nav button {
+    font-family:'Bebas Neue',sans-serif;
+    font-size:42px;letter-spacing:.04em;
+    color:var(--text);text-decoration:none;
+    background:transparent;border:none;cursor:pointer;
+    padding:8px 24px;
+    transition:color .2s;
+    display:block;text-align:center;
+  }
+  .mobile-nav a:hover, .mobile-nav button:hover { color:var(--accent); }
+  .mobile-nav-divider { width:40px;height:1px;background:var(--border);margin:8px 0; }
+  .mobile-nav-tg {
+    display:flex;align-items:center;gap:10px;
+    background:#229ED9;color:#fff !important;
+    font-size:20px !important;letter-spacing:.06em;
+    padding:12px 28px !important;border-radius:6px;margin-top:8px;
+  }
+  /* Burger animation when open */
+  .burger.open span:nth-child(1) { transform:rotate(45deg) translate(5px,5px); }
+  .burger.open span:nth-child(2) { opacity:0;transform:translateX(-10px); }
+  .burger.open span:nth-child(3) { transform:rotate(-45deg) translate(5px,-5px); }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HEADER ═══════════════════════════════════════════════ -->
+<header>
+  <div class="container header-inner">
+    <a href="/" class="logo">SMOKE<span>.</span>ROOM</a>
+    <nav>
+      <a href="catalog.html">Каталог</a>
+      <a href="#liquids">Рідини</a>
+      <a href="#" onclick="event.preventDefault();openAboutModal()">Про нас</a>
+      <a href="#contacts">Контакти</a>
+    </nav>
+    <div class="header-right">
+      <button class="cart-btn" onclick="openCart()">
+        Кошик
+        <span class="cart-badge" id="cartBadge">0</span>
+      </button>
+      <div class="burger" onclick="toggleMenu()">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── MOBILE NAV ── -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="index.html" onclick="closeMobileMenu()">Головна</a>
+  <a href="catalog.html" onclick="closeMobileMenu()">Каталог</a>
+  <a href="contacts.html" onclick="closeMobileMenu()">Контакти</a>
+  <div class="mobile-nav-divider"></div>
+  <button onclick="closeMobileMenu();openAboutModal()">Про нас</button>
+  <button onclick="closeMobileMenu();openDeliveryModal()">Доставка</button>
+  <div class="mobile-nav-divider"></div>
+  <a class="mobile-nav-tg" href="https://t.me/V3e3d" target="_blank" onclick="closeMobileMenu()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.94z"/></svg>
+    @V3e3d
+  </a>
+</div>
+
+<!-- ═══ HERO ══════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="container hero-content">
+    <p class="hero-eyebrow">Дніпро · Доставка по Україні</p>
+    <h1 class="hero-title">SMOKE<br><em>ROOM</em></h1>
+    <p class="hero-sub">Рідини, картриджні системи, снюс. Мінімалізм у кожній деталі — максимум смаку.</p>
+    <div class="hero-actions">
+      <a href="catalog.html" class="btn-primary">Перейти до каталогу</a>
+      <a href="https://t.me/+UNJlTG0qhXJkZWIy" target="_blank" class="btn-outline">Telegram-канал</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num">150+</div>
+        <div class="stat-label">Позицій у каталозі</div>
+      </div>
+      <div>
+        <div class="stat-num">2ч</div>
+        <div class="stat-label">Самовивіз Дніпро</div>
+      </div>
+      <div>
+        <div class="stat-num">НП</div>
+        <div class="stat-label">Доставка по Україні</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MARQUEE ═══════════════════════════════════════════════ -->
+<div class="marquee-wrap">
+  <div class="marquee-track">
+    <!-- block duplicated for seamless loop -->
+    <span class="marquee-item"><span class="dot"></span>Новинки щотижня</span>
+    <span class="marquee-item"><span class="dot"></span>Рідини Salt Nic 50/60 мг</span>
+    <span class="marquee-item"><span class="dot"></span>Картриджні системи</span>
+    <span class="marquee-item"><span class="dot"></span>Снюс — великий вибір</span>
+    <span class="marquee-item"><span class="dot"></span>Самовивіз у Дніпрі</span>
+    <span class="marquee-item"><span class="dot"></span>Нова Пошта по Україні</span>
+    <span class="marquee-item"><span class="dot"></span>Новинки щотижня</span>
+    <span class="marquee-item"><span class="dot"></span>Рідини Salt Nic 50/60 мг</span>
+    <span class="marquee-item"><span class="dot"></span>Картриджні системи</span>
+    <span class="marquee-item"><span class="dot"></span>Снюс — великий вибір</span>
+    <span class="marquee-item"><span class="dot"></span>Самовивіз у Дніпрі</span>
+    <span class="marquee-item"><span class="dot"></span>Нова Пошта по Україні</span>
+  </div>
+</div>
+
+<!-- ═══ CATEGORIES ════════════════════════════════════════════ -->
+<section class="section" id="catalog">
+  <div class="container">
+    <div class="section-head">
+      <h2 class="section-title">КАТЕГОРІЇ</h2>
+    </div>
+    <div class="cat-grid">
+      <a href="catalog.html#liquids" class="cat-card">
+        <div class="cat-bg">💧</div>
+        <div class="cat-info">
+          <div class="cat-name">РІДИНИ</div>
+          <div class="cat-count">Salt Nic · 10 / 15 / 30 мл · 50 / 60 мг</div>
+        </div>
+      </a>
+      <a href="catalog.html#pods" class="cat-card">
+        <div class="cat-bg">⚡</div>
+        <div class="cat-info">
+          <div class="cat-name">СИСТЕМИ</div>
+          <div class="cat-count">Картриджні pod-системи</div>
+        </div>
+      </a>
+      <a href="catalog.html#snus" class="cat-card">
+        <div class="cat-bg">🌿</div>
+        <div class="cat-info">
+          <div class="cat-name">СНЮС</div>
+          <div class="cat-count">Великий вибір брендів</div>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PRODUCTS – РІДИНИ ══════════════════════════════════════ -->
+<section class="section" id="liquids" style="padding-top:0">
+  <div class="container">
+    <div class="section-head">
+      <h2 class="section-title">РІДИНИ</h2>
+      <a href="catalog.html" class="section-link">Всі товари →</a>
+    </div>
+    <div class="products-grid" id="productsGrid">
+      <!-- Картки рендеряться через JS нижче -->
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CART DRAWER ════════════════════════════════════════════ -->
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="drawer-head">
+    <span class="drawer-title">КОШИК</span>
+    <button class="close-btn" onclick="closeCart()">✕</button>
+  </div>
+  <div class="drawer-items" id="drawerItems">
+    <div class="empty-cart"><div class="emoji">🛒</div><p style="margin-top:12px">Кошик порожній</p></div>
+  </div>
+  <div class="drawer-form" id="drawerForm" style="display:none">
+            <div class="form-title">ОФОРМИТИ</div>
+    <div class="form-field">
+      <label>ПІБ</label>
+      <input type="text" id="fname" placeholder="Прізвище Ім'я По-батькові" />
+    </div>
+    <div class="form-field">
+      <label>Телефон</label>
+      <input type="tel" id="fphone" placeholder="+380..." />
+    </div>
+    <div class="form-field">
+      <label>Доставка</label>
+      <select id="fdelivery" onchange="toggleNovaFields(this.value)">
+        <option value="pickup">🏪 Самовивіз у Дніпрі</option>
+        <option value="nova">📦 Нова Пошта (по Україні)</option>
+      </select>
+    </div>
+    <div id="novaFields" style="display:none">
+      <div class="form-field"><label>Місто</label><input type="text" id="fcity" placeholder="Київ" /></div>
+      <div class="form-field"><label>Область</label><input type="text" id="fregion" placeholder="Київська" /></div>
+      <div class="form-field"><label>Номер відділення НП</label><input type="number" id="fbranch" placeholder="1" min="1" /></div>
+      <div class="form-field"><label>Адреса відділення</label><input type="text" id="faddress" placeholder="вул. Кондратюка, 2" /></div>
+    </div>
+    <div class="form-field">
+      <label>Спосіб оплати</label>
+      <select id="fpayment" onchange="toggleCardInfo(this.value)">
+        <option value="cod">💵 Післяплата</option>
+        <option value="card">💳 Переказ на карту</option>
+      </select>
+    </div>
+    <div id="cardInfo" style="display:none;background:#1c1c1c;border:1px solid #2a2a2a;border-radius:4px;padding:12px 14px;margin-bottom:12px">
+      <div style="font-size:11px;color:#666;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px">Номер карти</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.08em;color:#e8ff00" onclick="copyCard(this)" title="Натисни щоб скопіювати">4441 1111 8866 1288 📋</div>
+      <div style="font-size:11px;color:#666;margin-top:6px">Після переказу прикріпи скріншот:</div>
+      <label id="screenshotLabel" style="display:flex;align-items:center;gap:8px;margin-top:8px;background:#2a2a2a;border:1px dashed #444;border-radius:4px;padding:10px 12px;cursor:pointer;font-size:12px;color:#aaa;transition:border-color .2s">
+        <span style="font-size:18px">📎</span>
+        <span id="screenshotText">Прикріпити скріншот оплати</span>
+        <input type="file" id="screenshotFile" accept="image/*" style="display:none" onchange="handleScreenshot(this)" />
+      </label>
+    </div>
+    <button class="submit-btn" onclick="submitOrder()">Відправити замовлення →</button>
+  </div>
+</div>
+
+<!-- ═══ CONTACTS ══════════════════════════════════════════════ -->
+<section class="section" id="contacts">
+  <div class="container">
+    <div class="section-head">
+      <h2 class="section-title">КОНТАКТИ</h2>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;margin-bottom:28px;flex-wrap:wrap">
+      <div>
+        <p style="color:var(--muted);font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Адреса</p>
+        <p style="line-height:1.6">вул. Набережна Заводська, 97Д<br>Дніпро, 49000</p>
+        <a href="https://www.google.com/maps/place/Comfy/@48.4853753,34.9238763,67m/data=!3m1!1e3!4m6!3m5!1s0x40dbe170fbec867d:0xc2f22f925986b0e1!8m2!3d48.485263!4d34.9239359!16s%2Fg%2F1vxdwtt1"
+           target="_blank"
+           style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;font-size:12px;color:var(--accent);border-bottom:1px solid rgba(232,255,0,.3);padding-bottom:2px;transition:border-color .2s">
+          📍 Відкрити в Google Maps
+        </a>
+      </div>
+      <div>
+        <p style="color:var(--muted);font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Telegram</p>
+        <a href="https://t.me/V3e3d" style="color:var(--accent)" target="_blank">@V3e3d</a>
+      </div>
+      <div>
+        <p style="color:var(--muted);font-size:12px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:8px">Канал з новинками</p>
+        <a href="https://t.me/+UNJlTG0qhXJkZWIy" style="color:var(--accent)" target="_blank">Канал Smoke Room</a>
+      </div>
+    </div>
+
+    <!-- Google Maps embed -->
+    <div style="border-radius:6px;overflow:hidden;border:1px solid var(--border);height:280px;position:relative">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d134.78!2d34.9238763!3d48.4853753!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x40dbe170fbec867d%3A0xc2f22f925986b0e1!2sComfy!5e1!3m2!1suk!2sua!4v1"
+        width="100%" height="280"
+        style="border:0;filter:grayscale(1) invert(0.9) hue-rotate(180deg) saturate(0.4);display:block"
+        allowfullscreen="" loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade">
+      </iframe>
+      <a href="https://www.google.com/maps/place/Comfy/@48.4853753,34.9238763,67m/data=!3m1!1e3!4m6!3m5!1s0x40dbe170fbec867d:0xc2f22f925986b0e1!8m2!3d48.485263!4d34.9239359!16s%2Fg%2F1vxdwtt1"
+         target="_blank"
+         style="position:absolute;bottom:12px;right:12px;background:var(--accent);color:#000;font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:7px 14px;border-radius:4px;text-decoration:none">
+        Прокласти маршрут →
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ════════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-logo">SMOKE<span>.</span>ROOM</div>
+        <p class="footer-desc">Мінімалістичний магазин для тих, хто цінує якість. Дніпро та доставка по Україні.</p>
+        <p class="footer-desc" style="margin-top:8px;font-size:12px">📍 вул. Набережна Заводська, 97Д, Дніпро</p>
+      </div>
+      <div class="footer-col">
+        <h4>Каталог</h4>
+        <ul>
+          <li><a href="catalog.html">Рідини</a></li>
+          <li><a href="catalog.html">Картриджні системи</a></li>
+          <li><a href="catalog.html">Снюс</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Інфо</h4>
+        <ul>
+          <li><a href="#contacts">Контакти</a></li>
+          <li><a href="https://t.me/+UNJlTG0qhXJkZWIy" target="_blank">Telegram-канал</a></li>
+          <li><a href="#" onclick="event.preventDefault();openDeliveryModal()" style="cursor:pointer">Умови доставки</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 Smoke Room · Дніпро</span>
+      <span class="age-badge">18+</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══ TELEGRAM SMART WIDGET ═══════════════════════════════ -->
+<style>
+  .tg-widget-wrap { position:fixed; bottom:24px; right:24px; z-index:500; display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+  .tg-fab {
+    width:58px; height:58px; background:#229ED9; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 4px 24px rgba(34,158,217,.5);
+    cursor:pointer; border:none; transition:transform .2s, box-shadow .2s;
+    position:relative;
+  }
+  .tg-fab:hover { transform:scale(1.1); box-shadow:0 6px 32px rgba(34,158,217,.65); }
+  .tg-fab svg { width:28px; height:28px; }
+  .tg-fab-badge {
+    position:absolute; top:-4px; right:-4px;
+    width:18px; height:18px; background:#ff4c00; border-radius:50%;
+    font-size:10px; font-weight:700; color:#fff;
+    display:flex; align-items:center; justify-content:center;
+    animation: tgPulse 2s infinite;
+  }
+  @keyframes tgPulse { 0%,100%{transform:scale(1)}50%{transform:scale(1.2)} }
+
+  .tg-popup {
+    background:#161616; border:1px solid #2a2a2a; border-radius:12px;
+    width:280px; padding:0; overflow:hidden;
+    box-shadow:0 8px 40px rgba(0,0,0,.6);
+    transform:scale(.9) translateY(10px); opacity:0;
+    transition:transform .25s cubic-bezier(.4,0,.2,1), opacity .25s;
+    pointer-events:none;
+  }
+  .tg-popup.open { transform:scale(1) translateY(0); opacity:1; pointer-events:all; }
+
+  .tg-popup-head {
+    background:linear-gradient(135deg,#229ED9,#1a7db0);
+    padding:14px 16px; display:flex; align-items:center; gap:12px;
+  }
+  .tg-avatar {
+    width:40px; height:40px; border-radius:50%; background:rgba(255,255,255,.2);
+    display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;
+  }
+  .tg-manager-name { font-weight:600; font-size:14px; color:#fff; }
+  .tg-online { font-size:11px; color:rgba(255,255,255,.75); margin-top:1px; display:flex; align-items:center; gap:4px; }
+  .tg-online::before { content:''; width:7px; height:7px; background:#4cff91; border-radius:50%; display:inline-block; }
+
+  .tg-popup-body { padding:14px 16px; }
+  .tg-bubble {
+    background:#1e1e1e; border:1px solid #2a2a2a; border-radius:10px 10px 10px 2px;
+    padding:10px 13px; font-size:13px; color:#e0e0e0; line-height:1.55;
+    margin-bottom:12px;
+  }
+  .tg-quick-btns { display:flex; flex-direction:column; gap:7px; }
+  .tg-quick-btn {
+    background:transparent; border:1px solid #2a2a2a; border-radius:8px;
+    padding:9px 13px; font-size:12px; font-weight:500; color:#ccc;
+    text-align:left; cursor:pointer; transition:all .18s;
+    font-family:'DM Sans',sans-serif;
+  }
+  .tg-quick-btn:hover { border-color:#229ED9; color:#229ED9; background:rgba(34,158,217,.06); }
+  .tg-quick-btn.primary { background:#229ED9; border-color:#229ED9; color:#fff; font-weight:600; }
+  .tg-quick-btn.primary:hover { opacity:.88; }
+  .tg-popup-foot { padding:10px 16px; border-top:1px solid #222; }
+  .tg-powered { font-size:10px; color:#444; text-align:center; }
+</style>
+
+<div class="tg-widget-wrap" id="tgWidgetWrap">
+  <div class="tg-popup" id="tgPopup">
+    <div class="tg-popup-head">
+      <div class="tg-avatar">👨‍💼</div>
+      <div>
+        <div class="tg-manager-name">Максим · Smoke Room</div>
+        <div class="tg-online">Зазвичай відповідає одразу</div>
+      </div>
+    </div>
+    <div class="tg-popup-body">
+      <div class="tg-bubble">Привіт! Я менеджер Максим 👋<br>Готовий допомогти із замовленням.<br>Який у вас запитання?</div>
+      <div class="tg-quick-btns">
+        <button class="tg-quick-btn" onclick="tgAsk('Умови опту?')">🏷️ Умови опту?</button>
+        <button class="tg-quick-btn" onclick="tgAsk('Є в наявності?')">📦 Є в наявності?</button>
+        <button class="tg-quick-btn primary" onclick="window.open('https://t.me/V3e3d','_blank')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white" style="vertical-align:middle;margin-right:5px"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.94z"/></svg>
+          Написати в Telegram
+        </button>
+      </div>
+    </div>
+    <div class="tg-popup-foot"><span class="tg-powered">Smoke Room · @V3e3d</span></div>
+  </div>
+
+  <button class="tg-fab" id="tgFab" onclick="toggleTgPopup()" title="Написати менеджеру">
+    <svg viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.94z"/></svg>
+    <span class="tg-fab-badge" id="tgBadge">1</span>
+  </button>
+</div>
+
+<script>
+  // ── TELEGRAM SOUND (Web Audio API — no external file needed) ──
+  function playTgSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(440, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.3);
+    } catch(e) {}
+  }
+
+  let tgPopupOpen = false;
+  let tgShownOnce = false;
+
+  function toggleTgPopup() {
+    tgPopupOpen = !tgPopupOpen;
+    document.getElementById('tgPopup').classList.toggle('open', tgPopupOpen);
+    document.getElementById('tgBadge').style.display = tgPopupOpen ? 'none' : '';
+    if (tgPopupOpen) playTgSound();
+  }
+
+  function tgAsk(question) {
+    window.open('https://t.me/V3e3d?text=' + encodeURIComponent(question), '_blank');
+  }
+
+  // Auto-open popup after 8 seconds with sound
+  setTimeout(function() {
+    if (!tgShownOnce) {
+      tgShownOnce = true;
+      tgPopupOpen = true;
+      document.getElementById('tgPopup').classList.add('open');
+      document.getElementById('tgBadge').style.display = 'none';
+      playTgSound();
+      // Auto-close after 12 seconds if user didn't interact
+      setTimeout(function() {
+        if (tgPopupOpen) toggleTgPopup();
+      }, 12000);
+    }
+  }, 8000);
+
+  // Close popup when clicking outside
+  document.addEventListener('click', function(e) {
+    if (tgPopupOpen && !document.getElementById('tgWidgetWrap').contains(e.target)) {
+      tgPopupOpen = false;
+      document.getElementById('tgPopup').classList.remove('open');
+    }
+  });
+</script>
+
+<!-- ═══ TOAST ══════════════════════════════════════════════════ -->
+<div class="toast" id="toast">✓ Додано до кошика</div>
+
+<!-- ═══ JS ════════════════════════════════════════════════════ -->
+<script>
+  // ── TELEGRAM CONFIG ──────────────────────────────────────────
+  // ЗАМІНИ ЦІ ДВА ЗНАЧЕННЯ:
+  const TG_BOT_TOKEN = '8707908880:AAEOZnNOBK4IG30KyQ6518NQQlhVF14BnB4';   // від @BotFather
+  const TG_CHAT_ID   = '1438736640';     // твій особистий chat_id
+
+  // ── ТОВАРИ ───────────────────────────────────────────────────
+  const products = [
+    // Рідини
+    { id:1,  cat:'liquid', emoji:'💧', brand:'—', name:'Рідина 1', variants:['30мл·50мг','30мл·60мг'], price:250 },
+    { id:2,  cat:'liquid', emoji:'💧', brand:'—', name:'Рідина 2', variants:['30мл·50мг','30мл·60мг'], price:250 },
+    { id:3,  cat:'liquid', emoji:'💧', brand:'—', name:'Рідина 3', variants:['30мл·50мг','30мл·60мг'], price:250 },
+    { id:4,  cat:'liquid', emoji:'💧', brand:'—', name:'Рідина 4', variants:['30мл·50мг','30мл·60мг'], price:250 },
+    // Картриджні системи
+    { id:5,  cat:'pod', emoji:'⚡', brand:'—', name:'Pod-система 1', variants:['Колір 1','Колір 2'], price:150 },
+    { id:6,  cat:'pod', emoji:'⚡', brand:'—', name:'Pod-система 2', variants:['Колір 1','Колір 2'], price:150 },
+    { id:7,  cat:'pod', emoji:'⚡', brand:'—', name:'Картридж 1',    variants:['Стандарт'],          price:150 },
+    // Снюс
+    { id:8,  cat:'snus', brand:'—', name:'Снюс 1', variants:['Slim','Mini'],   price:180 },
+    { id:9,  cat:'snus', brand:'—', name:'Снюс 2', variants:['Normal','Strong'], price:160 },
+    { id:10, cat:'snus', brand:'—', name:'Снюс 3', variants:['Mini','Slim'],   price:175 },
+  ];
+
+  let cart = [];
+  let selectedVariants = {};
+
+  // ── РЕНДЕР ТОВАРІВ ───────────────────────────────────────────
+  function renderProducts() {
+    const grid = document.getElementById('productsGrid');
+    grid.innerHTML = products.map(p => `
+      <div class="product-card">
+        <div class="product-img">
+          ${p.img ? `<img src="${p.img}" alt="${p.name}" style="width:100%;height:100%;object-fit:contain;padding:10px">` : (p.emoji || '📦')}
+          ${p.isNew ? '<span class="product-badge tag">New</span>' : ''}
+        </div>
+        <div class="product-body">
+          <div class="product-brand">${p.brand}</div>
+          <div class="product-name">${p.name}</div>
+          <div class="product-variants">
+            ${p.variants.map((v,i) => `
+              <span class="variant-chip ${i===0?'active':''}"
+                onclick="selectVariant(${p.id},'${v}',this)">${v}</span>
+            `).join('')}
+          </div>
+        </div>
+        <div class="product-footer">
+          <span class="product-price">${p.price}₴</span>
+          <button class="add-btn" onclick="addToCart(${p.id})">+ Кошик</button>
+        </div>
+      </div>
+    `).join('');
+    products.forEach(p => selectedVariants[p.id] = p.variants[0]);
+  }
+
+  function selectVariant(pid, v, el) {
+    selectedVariants[pid] = v;
+    el.closest('.product-variants').querySelectorAll('.variant-chip')
+      .forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ── КОШИК ────────────────────────────────────────────────────
+  function addToCart(pid) {
+    const p = products.find(x => x.id === pid);
+    const variant = selectedVariants[pid];
+    const existing = cart.find(x => x.id === pid && x.variant === variant);
+    if (existing) { existing.qty++; }
+    else { cart.push({ ...p, variant, qty: 1 }); }
+    updateBadge();
+    showToast(`✓ ${p.name} · ${variant}`);
+    renderDrawer();
+  }
+
+  function removeFromCart(pid, variant) {
+    cart = cart.filter(x => !(x.id === pid && x.variant === variant));
+    updateBadge();
+    renderDrawer();
+  }
+
+  function updateBadge() {
+    const total = cart.reduce((s, x) => s + x.qty, 0);
+    document.getElementById('cartBadge').textContent = total;
+  }
+
+  function renderDrawer() {
+    const container = document.getElementById('drawerItems');
+    const form      = document.getElementById('drawerForm');
+    if (!cart.length) {
+      container.innerHTML = '<div class="empty-cart"><div class="emoji">🛒</div><p style="margin-top:12px">Кошик порожній</p></div>';
+      form.style.display = 'none';
+      return;
+    }
+    form.style.display = 'block';
+    container.innerHTML = cart.map(item => `
+      <div class="cart-item">
+        <div class="ci-emoji">${item.emoji}</div>
+        <div class="ci-info">
+          <div class="ci-name">${item.brand} ${item.name}</div>
+          <div class="ci-variant">${item.variant} · ×${item.qty}</div>
+          <div class="ci-price">${item.price * item.qty}₴</div>
+        </div>
+        <button class="ci-remove" onclick="removeFromCart(${item.id},'${item.variant}')">✕</button>
+      </div>
+    `).join('');
+  }
+
+  function openCart()  { document.getElementById('cartDrawer').classList.add('open'); document.getElementById('overlay').classList.add('open'); renderDrawer(); }
+  function closeCart() { document.getElementById('cartDrawer').classList.remove('open'); document.getElementById('overlay').classList.remove('open'); }
+
+  // ── ВІДПРАВКА ЗАМОВЛЕННЯ → TELEGRAM ──────────────────────────
+      function toggleNovaFields(val) {
+    document.getElementById('novaFields').style.display = val === 'nova' ? 'block' : 'none';
+  }
+  function toggleCardInfo(val) {
+    document.getElementById('cardInfo').style.display = val === 'card' ? 'block' : 'none';
+  }
+  function copyCard(el) {
+    navigator.clipboard.writeText('4441111188661288').then(function() {
+      showToast('Номер карти скопійовано!');
+    }).catch(function() {
+      showToast('4441 1111 8866 1288');
+    });
+  }
+  function handleScreenshot(input) {
+    if (input.files && input.files[0]) {
+      document.getElementById('screenshotText').textContent = '✓ ' + input.files[0].name;
+      document.getElementById('screenshotLabel').style.borderColor = '#e8ff00';
+    }
+  }
+
+  async function submitOrder() {
+    const name     = document.getElementById('fname').value.trim();
+    const phone    = document.getElementById('fphone').value.trim();
+    const delivery = document.getElementById('fdelivery').value;
+    const payment  = document.getElementById('fpayment').value;
+    const payLabel = payment === 'cod' ? 'Після оплата' : 'Переказ на карту (4441 1111 8866 1288)';
+
+    if (!name || !phone) { alert('Заповни ПІБ та телефон'); return; }
+
+    let deliveryBlock = '';
+    if (delivery === 'nova') {
+      const city    = document.getElementById('fcity').value.trim();
+      const region  = document.getElementById('fregion').value.trim();
+      const branch  = document.getElementById('fbranch').value.trim();
+      const address = document.getElementById('faddress').value.trim();
+      if (!city || !branch) { alert('Вкажи місто та номер відділення НП'); return; }
+      deliveryBlock = 'Доставка: ' + city + ', ' + region + ' / НП №' + branch + ' / ' + address;
+    } else {
+      deliveryBlock = 'Доставка: Самовивіз (Дніпро)';
+    }
+
+    const total = cart.reduce((s,x) => s + x.price * x.qty, 0);
+    const lines = cart.map(x => x.brand + ' ' + x.name + ' [' + x.variant + '] x' + x.qty + ' = ' + (x.price * x.qty) + 'грн').join('\n');
+    const text = '📦 Замовлення\n\n👤 ' + name + '\n📱 ' + phone + '\n' + deliveryBlock + '\n💳 ' + payLabel + '\n\n🛒\n' + lines + '\n\n💰 ' + total + 'грн';
+    const encoded = encodeURIComponent(text);
+
+    // Step 1: send text message
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendMessage?chat_id=' + TG_CHAT_ID + '&text=' + encoded, true);
+    xhr.onload = function() {
+      try {
+        if (JSON.parse(xhr.responseText).ok) {
+          // Step 2: if card payment and screenshot attached — send photo
+          const fileInput = document.getElementById('screenshotFile');
+          if (payment === 'card' && fileInput && fileInput.files && fileInput.files[0]) {
+            const formData = new FormData();
+            formData.append('chat_id', TG_CHAT_ID);
+            formData.append('caption', 'Скріншот оплати від ' + name);
+            formData.append('photo', fileInput.files[0]);
+            const xhr2 = new XMLHttpRequest();
+            xhr2.open('POST', 'https://api.telegram.org/bot' + TG_BOT_TOKEN + '/sendPhoto', true);
+            xhr2.onload = function() {
+              cart=[]; updateBadge(); closeCart();
+              showToast('Замовлення + скріншот відправлено!');
+            };
+            xhr2.onerror = function() {
+              cart=[]; updateBadge(); closeCart();
+              showToast('Замовлення відправлено! Скрін надішли @V3e3d');
+            };
+            xhr2.send(formData);
+          } else {
+            cart=[]; updateBadge(); closeCart();
+            showToast('Замовлення відправлено!');
+          }
+        } else {
+          showToast('Помилка. Напиши @V3e3d');
+        }
+      } catch(e) { showToast('Помилка. Напиши @V3e3d'); }
+    };
+    xhr.onerror = function() { showToast('Немає зв\'язку. Напиши @V3e3d'); };
+    xhr.send();
+  }
+
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2600);
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────
+  renderProducts();
+
+  // ── DELIVERY MODAL ──
+  function openDeliveryModal() {
+    document.getElementById('deliveryModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeDeliveryModal(e) {
+    if (!e || e.target === document.getElementById('deliveryModal')) {
+      document.getElementById('deliveryModal').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDeliveryModal();
+  });
+
+  function openAboutModal() {
+    document.getElementById('aboutModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function toggleMenu() {
+    const nav = document.getElementById('mobileNav');
+    const burger = document.querySelector('.burger');
+    nav.classList.toggle('open');
+    burger.classList.toggle('open');
+    document.body.style.overflow = nav.classList.contains('open') ? 'hidden' : '';
+  }
+  function closeMobileMenu() {
+    document.getElementById('mobileNav').classList.remove('open');
+    document.querySelector('.burger').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+</script>
+
+<!-- ── DELIVERY MODAL ── -->
+<div class="modal-overlay" id="deliveryModal" onclick="closeDeliveryModal(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">УМОВИ ДОСТАВКИ</span>
+      <button class="modal-close" onclick="document.getElementById('deliveryModal').classList.remove('open')">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div class="delivery-row">
+        <div class="d-icon">🏪</div>
+        <div>
+          <div class="d-title">Самовивіз — Дніпро <span class="d-badge">Безкоштовно</span></div>
+          <div class="d-text">
+            вул. Набережна Заводська, 97Д<br>
+            Готовність замовлення: <strong style="color:#f0f0f0">~2 години</strong><br>
+            Графік: Пн–Нд 10:00–21:00
+          </div>
+        </div>
+      </div>
+
+      <div class="delivery-row">
+        <div class="d-icon">📦</div>
+        <div>
+          <div class="d-title">Нова Пошта — вся Україна</div>
+          <div class="d-text">
+            Відправка в день замовлення (до 18:00)<br>
+            Термін доставки: <strong style="color:#f0f0f0">1–3 дні</strong><br>
+            Вартість: за тарифами Нової Пошти
+          </div>
+        </div>
+      </div>
+
+      <div class="delivery-row">
+        <div class="d-icon">💳</div>
+        <div>
+          <div class="d-title">Оплата</div>
+          <div class="d-text">
+            <strong style="color:#f0f0f0">Самовивіз:</strong> готівка на місці або переказ на карту<br>
+            <strong style="color:#f0f0f0">Нова Пошта:</strong> переказ на карту до відправки або Після оплата<br><br>
+            Карта: <span style="color:#e8ff00;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.06em">4441 1111 8866 1288</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="delivery-row">
+        <div class="d-icon">💬</div>
+        <div>
+          <div class="d-title">Є питання?</div>
+          <div class="d-text">
+            Пишіть менеджеру Максиму — відповідаємо швидко<br>
+            <a href="https://t.me/V3e3d" target="_blank" style="color:#229ED9;font-weight:600">@V3e3d в Telegram →</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── ABOUT MODAL ── -->
+<div class="modal-overlay" id="aboutModal" onclick="if(event.target===this){this.classList.remove('open');document.body.style.overflow=''}">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span class="modal-title">ПРО НАС</span>
+      <button class="modal-close" onclick="document.getElementById('aboutModal').classList.remove('open');document.body.style.overflow=''">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="about-badge">Smoke Room · Дніпро</div>
+      <p style="color:#aaa;font-size:14px;line-height:1.75;margin-bottom:20px">
+        Ми — команда, яка знає толк у якісній продукції. Smoke Room — це мінімалістичний магазин у Дніпрі з великим вибором рідин, картриджних систем та снюсу.
+      </p>
+      <p style="color:#aaa;font-size:14px;line-height:1.75;margin-bottom:24px">
+        Тільки оригінальна продукція від перевірених постачальників. Відповідаємо за якість кожної позиції.
+      </p>
+
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:#2a2a2a;border-radius:6px;overflow:hidden;margin-bottom:24px">
+        <div class="about-stat" style="background:#1a1a1a">
+          <div class="about-stat-num">150+</div>
+          <div class="about-stat-label">Позицій</div>
+        </div>
+        <div class="about-stat" style="background:#1a1a1a">
+          <div class="about-stat-num">2год</div>
+          <div class="about-stat-label">Самовивіз</div>
+        </div>
+        <div class="about-stat" style="background:#1a1a1a">
+          <div class="about-stat-num">НП</div>
+          <div class="about-stat-label">По Україні</div>
+        </div>
+      </div>
+
+      <div style="background:#1a1a1a;border:1px solid #2a2a2a;border-radius:6px;padding:14px 16px;margin-bottom:14px">
+        <div style="font-size:11px;color:#666;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px">Адреса</div>
+        <div style="font-size:14px">📍 вул. Набережна Заводська, 97Д, Дніпро</div>
+        <a href="https://www.google.com/maps/place/Comfy/@48.4853753,34.9238763,67m/" target="_blank"
+           style="font-size:12px;color:#e8ff00;margin-top:6px;display:inline-block">Відкрити в Google Maps →</a>
+      </div>
+
+      <a href="https://t.me/V3e3d" target="_blank"
+         style="display:flex;align-items:center;justify-content:center;gap:8px;background:#229ED9;color:#fff;font-weight:700;font-size:13px;letter-spacing:.07em;text-transform:uppercase;padding:13px;border-radius:6px;text-decoration:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.248l-1.97 9.28c-.145.658-.537.818-1.084.508l-3-2.21-1.447 1.394c-.16.16-.295.295-.605.295l.213-3.053 5.56-5.023c.242-.213-.054-.333-.373-.12l-6.871 4.326-2.962-.924c-.643-.204-.657-.643.136-.953l11.57-4.461c.537-.194 1.006.131.833.94z"/></svg>
+        Написати менеджеру @V3e3d
+      </a>
+    </div>
+  </div>
+</div>
+</body>
+</html>

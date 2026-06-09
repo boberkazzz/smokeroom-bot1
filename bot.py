@@ -9,10 +9,12 @@ import requests
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 log = logging.getLogger(__name__)
 
-TOKEN    = os.getenv("BOT_TOKEN", "8707908880:AAEOZnNOBK4IG30KyQ6518NQQlhVF14BnB4")
-ADMIN_ID = int(os.getenv("ADMIN_ID", "1438736640"))
-API      = f"https://api.telegram.org/bot{TOKEN}"
-DB_FILE  = Path("products.json")
+TOKEN          = os.getenv("BOT_TOKEN", "8707908880:AAEOZnNOBK4IG30KyQ6518NQQlhVF14BnB4")
+ADMIN_ID       = int(os.getenv("ADMIN_ID", "1438736640"))
+API            = f"https://api.telegram.org/bot{TOKEN}"
+DB_FILE        = Path("products.json")
+NETLIFY_TOKEN  = os.getenv("NETLIFY_TOKEN", "nfp_N5N64a5pMyPK1H4xW9RoZhCrUsBUm7Bya31d")
+NETLIFY_SITE   = os.getenv("NETLIFY_SITE_ID", "18952d35-2fd1-4243-9d8f-8a0feb87fe7a")
 
 DEFAULT = [
     {"id":1,"cat":"liquid","name":"Рідина 1","price":250,"desc":"Опис","variants":["30мл·50мг","30мл·60мг"]},
@@ -33,6 +35,115 @@ def load():
 
 def save(data):
     DB_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    deploy_to_netlify(data)
+
+
+# ── NETLIFY DEPLOY ────────────────────────────────────────────
+def build_js_products(items):
+    """Генерує JS масив товарів для вставки в HTML"""
+    lines = []
+    for p in items:
+        variants = json.dumps(p.get("variants", []), ensure_ascii=False)
+        vol  = json.dumps(p.get("vol", []), ensure_ascii=False)
+        mg   = json.dumps(p.get("mg", []), ensure_ascii=False)
+        emoji = {"liquid": "💧", "pod": "⚡", "snus": "🌿"}.get(p["cat"], "📦")
+        img  = f"'{p['img']}'" if p.get("img") else "undefined"
+        line = (f"    {{ id:{p['id']}, cat:'{p['cat']}', emoji:'{emoji}', "
+                f"brand:'{p.get('brand','—')}', name:{json.dumps(p['name'],ensure_ascii=False)}, "
+                f"desc:{json.dumps(p.get('desc',''),ensure_ascii=False)}, "
+                f"variants:{variants}, vol:{vol}, mg:{mg}, price:{p['price']}"
+                + (f", img:{img}" if p.get("img") else "")
+                + (", isNew:true" if p.get("isNew") else "")
+                + " }")
+        lines.append(line)
+    return "  const allProducts = [\n" + ",\n".join(lines) + "\n  ];"
+
+
+def patch_html(html: str, items: list) -> str:
+    """Замінює масив allProducts і products в HTML новими даними"""
+    import re
+
+    # patch allProducts (catalog.html, product.html)
+    new_all = build_js_products(items)
+    html = re.sub(
+        r'  const allProducts = \[.*?\];',
+        new_all,
+        html, flags=re.DOTALL
+    )
+
+    # patch products (index.html) — коротший масив без desc/vol/mg
+    short_lines = []
+    for p in items:
+        variants = json.dumps(p.get("variants", []), ensure_ascii=False)
+        emoji = {"liquid": "💧", "pod": "⚡", "snus": "🌿"}.get(p["cat"], "📦")
+        img = f"'{p['img']}'" if p.get("img") else "undefined"
+        line = (f"    {{ id:{p['id']}, cat:'{p['cat']}', emoji:'{emoji}', "
+                f"brand:'{p.get('brand','—')}', name:{json.dumps(p['name'],ensure_ascii=False)}, "
+                f"variants:{variants}, price:{p['price']}"
+                + (f", img:{img}" if p.get("img") else "")
+                + (", isNew:true" if p.get("isNew") else "")
+                + " }")
+        short_lines.append(line)
+    new_short = "  const products = [\n" + ",\n".join(short_lines) + "\n  ];"
+    html = re.sub(
+        r'  const products = \[.*?\];',
+        new_short,
+        html, flags=re.DOTALL
+    )
+    return html
+
+
+def deploy_to_netlify(items: list):
+    """Збирає ZIP з оновленими HTML і деплоїть на Netlify"""
+    if not NETLIFY_TOKEN or not NETLIFY_SITE:
+        log.warning("Netlify не налаштований — пропускаємо деплой")
+        return
+
+    import zipfile, io, base64
+
+    site_dir = Path("site_files")
+    if not site_dir.exists():
+        log.warning("Папка site_files не знайдена — деплой пропущено")
+        return
+
+    try:
+        # Збираємо ZIP в пам'яті
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w", zipfile.ZIP_DEFLATED) as zf:
+            for fpath in site_dir.rglob("*"):
+                if fpath.is_file():
+                    rel = fpath.relative_to(site_dir)
+                    content = fpath.read_bytes()
+                    # Патчимо HTML файли
+                    if fpath.suffix == ".html":
+                        try:
+                            html = content.decode("utf-8")
+                            html = patch_html(html, items)
+                            content = html.encode("utf-8")
+                        except Exception as e:
+                            log.error("patch error %s: %s", fpath.name, e)
+                    zf.writestr(str(rel), content)
+        buf.seek(0)
+        zip_bytes = buf.read()
+
+        # Деплоїмо через Netlify API
+        resp = requests.post(
+            f"https://api.netlify.com/api/v1/sites/{NETLIFY_SITE}/deploys",
+            headers={
+                "Authorization": f"Bearer {NETLIFY_TOKEN}",
+                "Content-Type": "application/zip",
+            },
+            data=zip_bytes,
+            timeout=60,
+        )
+        if resp.status_code in (200, 201):
+            deploy_url = resp.json().get("deploy_ssl_url") or resp.json().get("url", "")
+            log.info("✅ Netlify deploy OK: %s", deploy_url)
+        else:
+            log.error("❌ Netlify deploy failed: %s %s", resp.status_code, resp.text[:300])
+
+    except Exception as e:
+        log.error("deploy_to_netlify error: %s", e)
 
 def find(pid):
     return next((p for p in load() if p["id"]==pid), None)
