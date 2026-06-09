@@ -1,8 +1,12 @@
 [phases.setup]
-nixPkgs = ["python311", "python311Packages.pip"]
+nixPkgs = ["python311", "gcc", "openssl"]
 
 [phases.install]
-cmds = ["pip install --upgrade pip", "pip install -r requirements.txt"]
+cmds = [
+  "python3.11 -m pip install --upgrade pip",
+  "python3.11 -m pip install pydantic-core==2.14.6 --only-binary=:all: --python-version 3.11",
+  "python3.11 -m pip install -r requirements.txt --only-binary=:all:"
+]
 
 [start]
-cmd = "python bot.py"
+cmd = "python3.11 bot.py"
