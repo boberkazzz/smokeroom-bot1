@@ -1,0 +1,13 @@
+[
+  {"id": 1,  "cat": "liquid", "name": "Рідина 1",      "price": 250, "desc": "Опис товару", "variants": ["30мл·50мг", "30мл·60мг"]},
+  {"id": 2,  "cat": "liquid", "name": "Рідина 2",      "price": 250, "desc": "Опис товару", "variants": ["30мл·50мг", "30мл·60мг"]},
+  {"id": 3,  "cat": "liquid", "name": "Рідина 3",      "price": 250, "desc": "Опис товару", "variants": ["30мл·50мг", "30мл·60мг"]},
+  {"id": 4,  "cat": "liquid", "name": "Рідина 4",      "price": 250, "desc": "Опис товару", "variants": ["30мл·50мг", "30мл·60мг"]},
+  {"id": 5,  "cat": "liquid", "name": "Рідина 5",      "price": 250, "desc": "Опис товару", "variants": ["30мл·50мг", "30мл·60мг"]},
+  {"id": 6,  "cat": "pod",    "name": "Pod-система 1", "price": 150, "desc": "Опис товару", "variants": ["Black", "Blue", "Red"]},
+  {"id": 7,  "cat": "pod",    "name": "Pod-система 2", "price": 150, "desc": "Опис товару", "variants": ["Black", "Silver"]},
+  {"id": 8,  "cat": "pod",    "name": "Картридж 1",    "price": 150, "desc": "Опис товару", "variants": ["0.6Ω Mesh"]},
+  {"id": 9,  "cat": "snus",   "name": "Снюс 1",        "price": 180, "desc": "Опис товару", "variants": ["Slim", "Mini"]},
+  {"id": 10, "cat": "snus",   "name": "Снюс 2",        "price": 160, "desc": "Опис товару", "variants": ["Normal", "Strong"]},
+  {"id": 11, "cat": "snus",   "name": "Снюс 3",        "price": 175, "desc": "Опис товару", "variants": ["Mini", "Slim"]}
+]
